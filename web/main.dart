@@ -18,82 +18,11 @@ import "dart:html";
  main() {
  	print("Components Tests web");
  	
- 	List<Function> middleware=[];
- 	var initialState=(new AppState()
-	                   // ..error=new AppError()
-	                    ..currentUser=(new User()
-	                    	    ..photoUrl="photoUrl" 
-	                    	    ..displayName="Musa musa"
-								.. email="eliaas@gmail.com")
-								) ;
- 	Store store= new Store(reducer:rootReducer,state:initialState,middleware:middleware);
 
-
-//user user Management 
-createSection("userManagement");
-UserManager account=new UserManager(store:store);
-   createButton("login",(e){
-    	account.login();
-    	});
-   createButton("register",(e){
-    	account.register();
-    	});
-   createButton("givePermission",(e){
-    	account.givePermission();
-    	});
-   createButton("revokePermission",(e){
-    	account.revokeUserPermission();
-    	});
-   createButton("follow",(e){
-    	account.followUser();
-    	});
-   createButton("unfollow",(e){
-    	account.unfollowUser();
-    	});
-   createButton("onUserInfoChanged",(e){
-    	account.onUserInfoChanged();
-    	});
-   createButton("logout",(e){
-    	account.logout();
-    	});
-   createButton("delete",(e){
-    	account.delete();
-    	});
 
 
 //instant messanger 
-createSection("InstantMessanger");
-InstantMessanger messanger= new InstantMessanger(store:store);
-	createButton("createChat",(e){
-		messanger.createChat();
-		});
-	createButton("deleteChat",(e){
-		messanger.deleteChat();
-		});
-	createButton("sendMessage",(e){
-		messanger.sendMessage();
-		});
-	createButton("deleteMessage",(e){
-		messanger.deleteMessage();
-		});
-	createButton("addParticipant",(e){
-		messanger.addParticipant();
-		});
-	createButton("removeParticipant",(e){
-		messanger.removeParticipant();
-		});
-	createButton("quoteMessage",(e){
-		messanger.quoteMessage();
-		});
-	createButton("forwardMessage",(e){
-		messanger.forwardMessage();
-		});
-	createButton("getContacts",(e){
-		messanger.getContacts();
-		});
 
-//shopping cart  
-createSection("shopping cart");
 
 }
 

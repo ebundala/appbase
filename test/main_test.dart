@@ -8,7 +8,7 @@ import "../web/states/user/userState.dart";
 import "../web/states/IM/instantMessangerState.dart";
 import "../web/states/state.dart";
 import "../web/states/reducers.dart";
-import "../web/states/shoppingCart/ShoppingCartState.dart";
+//import "../web/states/shoppingCart/ShoppingCartState.dart";
 
 //import "../web/states/store.dart";
 import "../web/components/UserManager.dart";
@@ -360,7 +360,7 @@ group("[INSTANT_MESSANGER]:-",(){
 * shopping cart
 * 
 */
-
+/*
 group("[SHOPPING_CART]:-",(){
         test("createItem",(){
             Item item= (new Item()
@@ -699,6 +699,7 @@ group("[SHOPPING_CART]:-",(){
            // expect(store.state.items[itemInfo],equals(null));
             }); 
     	});
+    	*/
 /*
 * billing management
 */
