@@ -2,7 +2,7 @@
 import "state.dart";
 import "user/userState.dart";
 import "IM/instantMessangerState.dart";
-import "shopping_cart/shoppingCartState.dart";
+import "shoppingCart/shoppingCartState.dart";
 import "actionsTypes.dart";
 
 

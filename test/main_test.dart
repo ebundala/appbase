@@ -8,7 +8,7 @@ import "../web/states/user/userState.dart";
 import "../web/states/IM/instantMessangerState.dart";
 import "../web/states/state.dart";
 import "../web/states/reducers.dart";
-import "../web/states/shopping_cart/ShoppingCartState.dart";
+import "../web/states/shoppingCart/ShoppingCartState.dart";
 
 //import "../web/states/store.dart";
 import "../web/components/UserManager.dart";

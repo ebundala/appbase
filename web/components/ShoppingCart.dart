@@ -2,7 +2,7 @@ import "dart:async";
 import "package:redux/redux.dart";
 import "../states/state.dart";
 import "../states/actionsTypes.dart";
-import "../states/shopping_cart/ShoppingCartState.dart";
+import "../states/shoppingCart/ShoppingCartState.dart";
 class ShoppingCart {
 	final  Store<AppState> store;
 	ShoppingCart({this.store});
