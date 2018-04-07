@@ -1,5 +1,5 @@
 import "package:dartson/dartson.dart";
-import "../user/userState.dart" show userInfo;
+import "../user/userState.dart";
 
 @Entity()
 class Category {

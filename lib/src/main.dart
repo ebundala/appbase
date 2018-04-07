@@ -1,13 +1,5 @@
 
-//import "dart:io";
-import "states/actionsTypes.dart";
-import "states/user/userState.dart";
-import "states/IM/instantMessangerState.dart";
-import "states/state.dart";
-import "states/reducers.dart";
-import "states/store.dart";
-import "components/InstantMessanger.dart";
-import 'components/UserManager.dart';
+
 import "dart:html";
 
 

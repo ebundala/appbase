@@ -1,24 +1,26 @@
+import 'dart:async';
 import "package:test/test.dart";
 import "package:dartson/dartson.dart";
 import "package:redux/redux.dart";
 import 'package:logging/logging.dart';
-
-import "../web/states/actionsTypes.dart";
-import "../web/states/user/userState.dart";
-import "../web/states/IM/instantMessangerState.dart";
-import "../web/states/state.dart";
-import "../web/states/reducers.dart";
-//import "../web/states/shoppingCart/ShoppingCartState.dart";
-
-//import "../web/states/store.dart";
-import "../web/components/UserManager.dart";
-import "../web/components/InstantMessanger.dart";
-import "../web/components/ShoppingCart.dart";
-import "../web/components/BillingManager.dart";
-import "../web/components/ContentManager.dart";
-import "../web/components/AdsManager.dart";
 import 'package:firebase_dart/firebase_dart.dart';
-import 'dart:async';
+
+import "../lib/src//states/actionsTypes.dart";
+import "../lib/src/states/user/userState.dart";
+import "../lib/src/states/IM/instantMessangerState.dart";
+import "../lib/src/states/state.dart";
+import "../lib/src/states/reducers.dart";
+import "../lib/src/states/shoppingCart/ShoppingCartState.dart";
+
+//import "../lib/src/states/store.dart";
+import "../lib/src/components/UserManager.dart";
+import "../lib/src/components/InstantMessanger.dart";
+import "../lib/src/components/ShoppingCart.dart";
+import "../lib/src/components/BillingManager.dart";
+import "../lib/src/components/ContentManager.dart";
+import "../lib/src/components/AdsManager.dart";
+
+
 //import "secrets.dart";
 import "secretsMem.dart";
 
@@ -360,7 +362,7 @@ group("[INSTANT_MESSANGER]:-",(){
 * shopping cart
 * 
 */
-/*
+
 group("[SHOPPING_CART]:-",(){
         test("createItem",(){
             Item item= (new Item()
@@ -699,7 +701,6 @@ group("[SHOPPING_CART]:-",(){
            // expect(store.state.items[itemInfo],equals(null));
             }); 
     	});
-    	*/
 /*
 * billing management
 */
