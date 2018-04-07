@@ -4,8 +4,7 @@ dart:
 #- stable
 # Install the latest dev release
 - dev
-before_install:
- - cd $TRAVIS_BUILD_DIR/appbase
+
 dart_task:
    test
 #- test: --platform vm
