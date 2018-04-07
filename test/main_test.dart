@@ -19,8 +19,8 @@ import "../web/components/ContentManager.dart";
 import "../web/components/AdsManager.dart";
 import 'package:firebase_dart/firebase_dart.dart';
 import 'dart:async';
-import "secrets.dart";
-//import "secretsMem.dart";
+//import "secrets.dart";
+import "secretsMem.dart";
 
 
  void main() {
