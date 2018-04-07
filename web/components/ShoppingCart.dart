@@ -50,11 +50,16 @@ void createAuction({AuctionInfo info,Item item}) {
 void deleteAuction({Auction auction,Item item}){
 store.dispatch(new Action(type:ActionsTypes.createAuction,data:auction));
 }
-void placeBid({Bid bid,Item item}){
+void placeBid(Bid bid){
 	store.dispatch(new Action(type:ActionsTypes.placeBid,data:bid));
 }
-void updateBid(){}
-void removeBid(){}
+void updateBid(Bid bid){
+	store.dispatch(new Action(type:ActionsTypes.updateBid,data:bid));
+
+}
+void removeBid(Bid bid){
+  store.dispatch(new Action(type:ActionsTypes.removeBid,data:bid));
+}
 void checkout(){}
 void confirmOrder(){}
 void cancelOrder(){}

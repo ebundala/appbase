@@ -69,6 +69,18 @@ class Auction extends AuctionInfo{
 	//map usersid and their bids
 	Map<String,Bid> bids={};
 	//Auction({id,start,end}):super(id:id,start:start,end:end);
+AuctionInfo getAuctionInfo(){
+	return (new AuctionInfo()
+		..auctionId=auctionId
+		..item=item..seller=seller
+		..start=start
+    ..end=end
+		..status=status
+			..highestBid=highestBid
+			..minimumBid=minimumBid
+			..seller=seller
+	);
+}
 	
 }
 
@@ -78,10 +90,12 @@ class Auction extends AuctionInfo{
 	userInfo seller;
 	String title;
 	double priceUnit;
+  String featuredImage;
 	//ItemInfo({this.itemId,this.title,this.priceUnit,this.seller});
 }
 
 @Entity()
+
 class Item extends ItemInfo{
 	String itemId;
 	userInfo seller;
@@ -101,7 +115,9 @@ class Item extends ItemInfo{
 	Map<String,SubCategory> subCategories={};
 	AuctionInfo auctionInfo;
 	//Item({itemId,title,priceUnit,this.quantity,this.qUnits,seller}):super(itemId:itemId,title:title,priceUnit:priceUnit,seller:seller);
-
+ItemInfo getItemInfo(){
+  return (new ItemInfo()..seller=seller..itemId=itemId..title=title..priceUnit=priceUnit..featuredImage=featuredImage);
+}
 }
 
 
@@ -113,6 +129,8 @@ class Bid extends userInfo {
 	String userName;
 	String avator;
 	String uid;
+	String auctionId;
+
 	//Bid({bidderId,bidderName,avator,this.item,this.bidValue}):super(uid:bidderId,name:bidderName,avator:avator);
 	
 }

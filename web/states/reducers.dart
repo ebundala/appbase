@@ -238,7 +238,7 @@ AppState rootReducer(AppState prevState,Action action){
 		AppState state= prevState;
 		//modify state here
 		if(state.currentUser.uid!=null){
-		state.items[action.data.itemId]=null;
+		state.items.remove(action.data.itemId);
 		return state;
 	    }
 		return prevState;
@@ -274,7 +274,7 @@ AppState rootReducer(AppState prevState,Action action){
 			AppState state= prevState;
 			//modify state here
 			if((state.currentUser.uid!=null)&&(state.shoppingCart!=null)){
-			state.shoppingCart.items[action.data.itemId]=null;
+			state.shoppingCart.items.remove(action.data.itemId);
 			return state;
 			}
 			return prevState;
@@ -295,7 +295,7 @@ AppState rootReducer(AppState prevState,Action action){
 		AppState state= prevState;
 		//modify state here
 		if((state.currentUser.uid!=null)&&(state.shoppingCart!=null)){
-			state.shoppingCart.items=null;
+			state.shoppingCart.items.clear();
 
 		return state;
 		}
@@ -305,16 +305,38 @@ AppState rootReducer(AppState prevState,Action action){
 		case ActionsTypes.createAuction:
 		AppState state= prevState;
 		//modify state here
-		if((state.currentUser.uid!=null)){
+    if((state.currentUser.uid!=null)){
+    userInfo _userInfo=(new userInfo()
+      ..uid=action.data.seller.uid
+      ..userName=action.data.seller.userName
+      ..avator=action.data.seller.avator
+    );
+    ItemInfo _itemInfo=(new ItemInfo()
+      ..itemId=action.data.item.itemId
+      ..priceUnit=action.data.item.priceUnit
+      ..title=action.data.item.title
+      ..seller=_userInfo
+    );
+
 			state.auctions[action.data.auctionId]=(new Auction()
-				..seller=action.data.seller
-				..item=action.data.item
+				..seller=_userInfo
+				..item=_itemInfo
 				..auctionId=action.data.auctionId
 				..start=action.data.start
 				..end=action.data.end
 				..status=action.data.status
-				..highestBid=action.data.highestBid
-				..minimumBid=action.data.minimumBid
+				..highestBid=(new Bid()
+          ..avator=action.data.highestBid.avator
+          ..bidValue=action.data.highestBid.bidValue
+          ..userName=action.data.highestBid.userName
+          ..item=_itemInfo
+        )
+				..minimumBid=(new Bid()
+          ..avator=action.data.minimumBid.avator
+          ..bidValue=action.data.minimumBid.bidValue
+          ..userName=action.data.minimumBid.userName
+          ..item=_itemInfo
+        )
 				..bids=action.data.bids
 				);
 		return state;
@@ -325,27 +347,38 @@ AppState rootReducer(AppState prevState,Action action){
 		AppState state= prevState;
 		//modify state here
 		if(state.currentUser.uid!=null){
+      state.auctions.remove(action.data.auctionId);
 		return state;}
 		return prevState;
 		break;
+    case ActionsTypes.updateBid:
 		case ActionsTypes.placeBid:
 		AppState state= prevState;
 		//modify state here
 		if(state.currentUser.uid!=null){
-		return state;}
+      state.auctions[action.data.auctionId].bids[action.data.uid]=(new Bid()
+        ..bidValue=action.data.bidValue
+        ..uid=action.data.uid
+        ..userName=action.data.userName
+        ..avator=action.data.avator
+        ..item=(new ItemInfo()
+          ..itemId=action.data.item.itemId
+          ..featuredImage=action.data.item.featuredImage
+          ..seller=(new userInfo()
+            ..userName=action.data.item.seller.userName
+            ..avator=action.data.item.seller.avator
+            ..uid=action.data.item.seller.uid))
+      );
+		return state;
+		}
 		return prevState;
 		break;
-		case ActionsTypes.updateBid:
-		AppState state= prevState;
-		//modify state here
-		if(state.currentUser.uid!=null){
-		return state;}
-		return prevState;
-		break;
+
 		case ActionsTypes.removeBid:
 		AppState state= prevState;
 		//modify state here
 		if(state.currentUser.uid!=null){
+      state.auctions[action.data.auctionId].bids.remove(action.data.uid);
 		return state;}
 		return prevState;
 		break;
