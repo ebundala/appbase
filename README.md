@@ -1,0 +1,1 @@
+# appcore [![Build Status](https://travis-ci.org/ebundala/appbase.svg?branch=master)](https://travis-ci.org/ebundala/appbase)[![Coverage Status](https://coveralls.io/repos/github/ebundala/appcore/badge.svg?branch=master)](https://coveralls.io/github/ebundala/appcore?branch=master)
