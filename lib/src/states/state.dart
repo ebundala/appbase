@@ -7,7 +7,7 @@
 import "package:dartson/dartson.dart";
 import "user/userState.dart";
 import "IM/instantMessangerState.dart";
-import "shoppingCart/shoppingCartState.dart";
+import "shoppingCart/ShoppingCartState.dart";
 import "actionsTypes.dart";
 
 
