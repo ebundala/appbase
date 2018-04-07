@@ -10,7 +10,7 @@ import "actionsTypes.dart";
 
 
 
-AppState rootReducer(AppState prevState,Action action){
+AppState rootReducer(AppState prevState,dynamic<Action> action){
 	switch(action.type){
 /*
 

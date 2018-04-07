@@ -5,8 +5,8 @@ dart:
 # Install the latest dev release
 - dev
 dart_task:
-#   test
- test: --platform vm
- test: --platform chrome
+   test
+#- test: --platform vm
+#- test: --platform chrome
 # Warnings are fatal, but we only analyze the lib/ directory.
 #- dartanalyzer: --fatal-warnings lib
