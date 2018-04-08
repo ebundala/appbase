@@ -4,9 +4,18 @@ dart:
 #- stable
 # Install the latest dev release
 - dev
-dart_task:
+
+notifications:
+  email: false
+
+
+
+#dart_task:
 #   test
-- test: --platform vm
+#- test: --platform vm
 #- test: --platform chrome
 # Warnings are fatal, but we only analyze the lib/ directory.
-- dartanalyzer: --fatal-warnings lib
+#- dartanalyzer: --fatal-warnings lib
+
+script: pub run grinder test
+after_success: pub run coveralls var/lcov.info
