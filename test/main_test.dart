@@ -513,7 +513,159 @@ group("[SHOPPING_CART]:-",(){
         test("saveCart",(){
             
             expect(true,equals(true));
-            }); 
+            });
+
+        test("confirmOrder",(){
+          Cart _cart=store.state.shoppingCart;
+          Order order=(new Order()
+              ..userName=_cart.userName
+              ..uid=_cart.uid
+              ..avator=_cart.avator
+              ..orderId="key"
+              ..status=OrderState.waiting
+              ..cart=(new Cart()
+                        ..avator=_cart.avator
+                        ..uid=_cart.uid
+                        ..invoiceNo=_cart.invoiceNo
+                        ..userName=_cart.userName
+              )
+          );
+
+          if(_cart.items.length>0){
+            _cart.items.forEach((key,item){
+              order.cart.grandTotal+=(item.priceUnit*item.quantity);
+              order.cart.items[key]=(new CartItemInfo()
+                ..title=item.title
+                ..quantity=item.quantity
+                ..featuredImage=item.featuredImage
+                ..subTotal=(item.quantity*item.priceUnit)
+                ..priceUnit=item.priceUnit
+                ..seller=(new userInfo()
+                  ..userName=item.seller.userName
+                  ..uid=item.seller.uid
+                  ..avator=item.seller.avator
+                )
+              );
+
+            });
+          }
+
+          cart.confirmOrder(order);
+
+          expect(store.state.orders.length,equals(1));
+          expect(store.state.orders[order.orderId].uid,equals(order.uid));
+          expect(store.state.orders[order.orderId].userName,equals(order.userName));
+          expect(store.state.orders[order.orderId].avator,equals(order.avator));
+          expect(store.state.orders[order.orderId].orderId,equals(order.orderId));
+          expect(store.state.orders[order.orderId].cart.uid,equals(order.cart.uid));
+          expect(store.state.orders[order.orderId].cart.userName,equals(order.cart.userName));
+          expect(store.state.orders[order.orderId].cart.avator,equals(order.cart.avator));
+          expect(store.state.orders[order.orderId].cart.invoiceNo,equals(order.cart.invoiceNo));
+          expect(store.state.orders[order.orderId].cart.grandTotal,equals(order.cart.grandTotal));
+          expect(store.state.orders[order.orderId].cart.items.containsKey("xcvbbnbj89jk"),isTrue);
+          expect(store.state.orders[order.orderId].cart.items.containsValue(order.cart.items["xcvbbnbj89jk"]),isTrue);
+        });
+
+        test("editOrder",(){
+          Cart _cart=store.state.shoppingCart;
+          Order order=(new Order()
+            ..userName=_cart.userName
+            ..uid=_cart.uid
+            ..avator=_cart.avator
+            ..orderId="key"
+            ..status=OrderState.waiting
+            ..cart=(new Cart()
+              ..avator=_cart.avator
+              ..uid=_cart.uid
+              ..invoiceNo=_cart.invoiceNo
+              ..userName=_cart.userName
+            )
+          );
+
+          if(_cart.items.length>0){
+            _cart.items.forEach((key,item){
+              order.cart.grandTotal+=(item.priceUnit*item.quantity);
+              order.cart.items[key]=(new CartItemInfo()
+                ..title=item.title
+                ..quantity=item.quantity
+                ..featuredImage=item.featuredImage
+                ..subTotal=(item.quantity*item.priceUnit)
+                ..priceUnit=item.priceUnit
+                ..seller=(new userInfo()
+                  ..userName=item.seller.userName
+                  ..uid=item.seller.uid
+                  ..avator=item.seller.avator
+                )
+              );
+
+            });
+          }
+
+          cart.editOrder(order);
+
+          expect(store.state.orders.length,equals(1));
+          expect(store.state.orders[order.orderId].uid,equals(order.uid));
+          expect(store.state.orders[order.orderId].userName,equals(order.userName));
+          expect(store.state.orders[order.orderId].avator,equals(order.avator));
+          expect(store.state.orders[order.orderId].orderId,equals(order.orderId));
+          expect(store.state.orders[order.orderId].cart.uid,equals(order.cart.uid));
+          expect(store.state.orders[order.orderId].cart.userName,equals(order.cart.userName));
+          expect(store.state.orders[order.orderId].cart.avator,equals(order.cart.avator));
+          expect(store.state.orders[order.orderId].cart.invoiceNo,equals(order.cart.invoiceNo));
+          expect(store.state.orders[order.orderId].cart.grandTotal,equals(order.cart.grandTotal));
+          expect(store.state.orders[order.orderId].cart.items.containsKey("xcvbbnbj89jk"),isTrue);
+          expect(store.state.orders[order.orderId].cart.items.containsValue(order.cart.items["xcvbbnbj89jk"]),isTrue);
+        });
+
+        test("cancelOrder",(){
+
+          Cart _cart=store.state.shoppingCart;
+          Order order=(new Order()
+            ..userName=_cart.userName
+            ..uid=_cart.uid
+            ..avator=_cart.avator
+            ..orderId="key"
+            ..status=OrderState.waiting
+            ..cart=(new Cart()
+              ..avator=_cart.avator
+              ..uid=_cart.uid
+              ..invoiceNo=_cart.invoiceNo
+              ..userName=_cart.userName
+            )
+          );
+
+          if(_cart.items.length>0){
+            _cart.items.forEach((key,item){
+              order.cart.grandTotal+=(item.priceUnit*item.quantity);
+              order.cart.items[key]=(new CartItemInfo()
+                ..title=item.title
+                ..quantity=item.quantity
+                ..featuredImage=item.featuredImage
+                ..subTotal=(item.quantity*item.priceUnit)
+                ..priceUnit=item.priceUnit
+                ..seller=(new userInfo()
+                  ..userName=item.seller.userName
+                  ..uid=item.seller.uid
+                  ..avator=item.seller.avator
+                )
+              );
+
+            });
+          }
+
+          cart.cancelOrder(order);
+
+          expect(store.state.orders.length,equals(0));
+
+
+          expect(store.state.orders.containsKey(order.orderId),isFalse);
+          expect(store.state.orders.containsValue(order),isFalse);
+        });
+        test("checkout",(){
+
+          // expect(true,equals(false));
+        });
+
         test("removeFromCart",(){
             CartItemInfo item= (new CartItemInfo()
                             ..itemId="xcvbbnbj89jk"
@@ -529,6 +681,8 @@ group("[SHOPPING_CART]:-",(){
                    );
             cart.removeFromCart(item);
             expect(store.state.shoppingCart.items.containsKey(item.itemId),isFalse);
+            expect(store.state.shoppingCart.items.containsValue(item),isFalse);
+            expect(store.state.shoppingCart.items.length,equals(0));
             }); 
         
         test("deleteCart",(){
@@ -668,18 +822,7 @@ group("[SHOPPING_CART]:-",(){
           expect(store.state.auctions["xcvbbnbj89jk"].bids.length,equals(0));
           expect(store.state.auctions["xcvbbnbj89jk"].bids.containsKey(aUser.uid),isFalse);
             }); 
-        test("checkout",(){
-            
-           // expect(true,equals(false));
-            }); 
-        test("confirmOrder",(){
-            
-          //  expect(true,equals(false));
-            }); 
-        test("cancelOrder",(){
-            
-           // expect(true,equals(false));
-            }); 
+
         test("deleteAuction",(){
             
           //  expect(true,equals(false));

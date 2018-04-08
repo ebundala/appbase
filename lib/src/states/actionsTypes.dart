@@ -64,6 +64,7 @@ enum ActionsTypes {
 	removeBid,
 	checkout,
 	confirmOrder,
+	editOrder,
 	cancelOrder,
 
 
