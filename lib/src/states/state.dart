@@ -3,13 +3,12 @@
 * states for the app
 *
 * */
-import "package:dartson/dartson.dart";
+//import "package:dartson/dartson.dart";
 import "user/userState.dart";
 import "IM/instantMessangerState.dart";
 import "shoppingCart/ShoppingCartState.dart";
 import "actionsTypes.dart";
 
-@Entity()
 class AppState {
   bool isLoading;
   List<AppError> errors = [];

@@ -1,3 +1,1 @@
-class ContentManager {
-	
-}
+class ContentManager {}

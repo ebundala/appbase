@@ -1,7 +1,5 @@
-import "package:dartson/dartson.dart";
 import "../user/userState.dart";
 
-@Entity()
 class Category {
   String name;
   String catId;
@@ -9,7 +7,6 @@ class Category {
   Map<String, SubCategory> subCategories = {};
 }
 
-@Entity()
 class SubCategory extends Category {
   String parentId;
   String name;
@@ -18,7 +15,6 @@ class SubCategory extends Category {
 
 }
 
-@Entity()
 enum ItemCondition {
   brandNew,
   refurbished,
@@ -27,13 +23,10 @@ enum ItemCondition {
   unRepairable,
 }
 
-@Entity()
 enum ItemType { physical, digital }
 
-@Entity()
 enum SellMode { directSell, auctionSell }
 
-@Entity()
 class AuctionInfo {
   String auctionId;
   int start;
@@ -46,7 +39,6 @@ class AuctionInfo {
   //AuctionInfo({this.id,this.start,this.end});
 }
 
-@Entity()
 class Auction extends AuctionInfo {
   String auctionId;
   int start;
@@ -73,7 +65,6 @@ class Auction extends AuctionInfo {
   }
 }
 
-@Entity()
 class ItemInfo {
   String itemId;
   userInfo seller;
@@ -83,7 +74,6 @@ class ItemInfo {
   //ItemInfo({this.itemId,this.title,this.priceUnit,this.seller});
 }
 
-@Entity()
 class Item extends ItemInfo {
   String itemId;
   userInfo seller;
@@ -113,7 +103,6 @@ class Item extends ItemInfo {
   }
 }
 
-@Entity()
 class Bid extends userInfo {
   double bidValue;
   ItemInfo item;
@@ -126,7 +115,6 @@ class Bid extends userInfo {
 
 }
 
-@Entity()
 enum OrderState {
   waiting,
   completed,
@@ -135,7 +123,6 @@ enum OrderState {
   returned,
 }
 
-@Entity()
 class Order extends userInfo {
   OrderState status = OrderState.waiting;
   String orderId;
@@ -149,7 +136,6 @@ class Order extends userInfo {
 
 }
 
-@Entity()
 class CartItemInfo extends ItemInfo {
   String itemId;
   userInfo seller;
@@ -162,7 +148,6 @@ class CartItemInfo extends ItemInfo {
   // }
 }
 
-@Entity()
 class Cart extends userInfo {
   String userName;
   String avator;
@@ -174,19 +159,16 @@ class Cart extends userInfo {
 
 }
 
-@Entity()
 class Like {
   final bool status = true;
   String userId;
   String objectId;
 }
 
-@Entity()
 class Unlike extends Like {
   final bool status = false;
 }
 
-@Entity()
 class Comment extends userInfo {
   String text;
   String commentId;
@@ -194,19 +176,16 @@ class Comment extends userInfo {
   //
 }
 
-@Entity()
 class Rating extends Comment {
   int value;
 }
 
-@Entity()
 class ratings {
   String objectId;
   int averageRate;
   Map<String, Rating> rawData = {};
 }
 
-@Entity()
 class Report extends userInfo {
   String userName;
   String avator;
@@ -214,7 +193,6 @@ class Report extends userInfo {
   final bool status = true;
 }
 
-@Entity()
 class UnReport extends Report {
   String userName;
   String avator;
@@ -222,7 +200,6 @@ class UnReport extends Report {
   final bool status = true;
 }
 
-@Entity()
 class Abuse {
   String objectId;
   Map<String, Report> reports = {};

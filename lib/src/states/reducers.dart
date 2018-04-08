@@ -384,19 +384,19 @@ AppState rootReducer(AppState prevState, dynamic<Action> action) {
       //modify state here
 
       if (state.currentUser.uid != null) {
-        state.orders[action.data.orderId]=(new Order()
-          ..uid=action.data.uid
-          ..userName=action.data.userName
-          ..orderId=action.data.orderId
-          ..status=action.data.status
-          ..avator=action.data.avator
-          ..cart=action.data.cart);
+        state.orders[action.data.orderId] = (new Order()
+          ..uid = action.data.uid
+          ..userName = action.data.userName
+          ..orderId = action.data.orderId
+          ..status = action.data.status
+          ..avator = action.data.avator
+          ..cart = action.data.cart);
 
         return state;
       }
       return prevState;
       break;
-      //Todo handle change order state
+    //Todo handle change order state
     case ActionsTypes.cancelOrder:
       AppState state = prevState;
       //modify state here

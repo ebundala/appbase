@@ -1,3 +1,1 @@
-class BillingManager {
-	
-}
+class BillingManager {}

@@ -74,12 +74,14 @@ class ShoppingCart {
 
   void checkout() {}
   void confirmOrder(Order order) {
-  	store.dispatch(new Action(type:ActionsTypes.confirmOrder,data:order));
-	}
-  void cancelOrder(Order order){
-    store.dispatch(new Action(type:ActionsTypes.cancelOrder,data:order));
+    store.dispatch(new Action(type: ActionsTypes.confirmOrder, data: order));
   }
-  void editOrder(Order order){
-    store.dispatch(new Action(type: ActionsTypes.editOrder,data:order));
+
+  void cancelOrder(Order order) {
+    store.dispatch(new Action(type: ActionsTypes.cancelOrder, data: order));
+  }
+
+  void editOrder(Order order) {
+    store.dispatch(new Action(type: ActionsTypes.editOrder, data: order));
   }
 }
