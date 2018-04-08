@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:grinder/grinder.dart';
 import '../test/secrets.dart' as secrets;
 
@@ -44,7 +43,7 @@ Future<Null> test() async {
     fail('FIREBASE_API_KEY environment variable not set.');
   if (keys['host'] == null) fail('FIREBASE_HOST environment variable not set.');
   await Future.wait([
-    Dart.runAsync('test/all.dart ',
+    Dart.runAsync('test/all.dart',
         vmArgs: ['--enable-vm-service', '--pause-isolates-on-exit']),
     Pub.runAsync('coverage', script: 'collect_coverage', arguments: [
       '--out=var/coverage.json',

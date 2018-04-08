@@ -1,4 +1,4 @@
-import 'main_test.dart' as mainTestSuite;
+import 'main.dart' as mainTestSuite;
 
 void main() {
   mainTestSuite.main();
