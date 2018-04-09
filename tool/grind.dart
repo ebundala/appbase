@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:grinder/grinder.dart';
 import '../test/secrets.dart' as secrets;
-
+import 'dart:io';
 /// Starts the build system.
 Future<void> main(List<String> args) => grind(args);
 
@@ -34,6 +34,20 @@ void fix() => DartFmt.format(existingSourceDirs);
 @Task('Perform the static analysis')
 void lint() => Analyzer.analyze(existingSourceDirs);
 
+@Task('format coverage')
+void lcov(){
+var args = [
+'--in=var/coverage.json',
+'--lcov',
+'--out=var/lcov.info',
+'--packages=.packages',
+'--report-on=${libDir.path}'
+];
+Pub.global.run('coverage', script: 'format_coverage', arguments: args);
+}
+
+
+
 /// Runs all the test suites.
 @DefaultTask('Run the tests')
 @Depends(clean)
@@ -42,32 +56,41 @@ Future<void> test() async {
 
   if (keys['secret'] == null) fail('FIREBASE_API_KEY environment variable not set.');
   if (keys['host'] == null) fail('FIREBASE_HOST environment variable not set.');
-
+Dart.runAsync('test/all.dart',
+vmArgs: [
+'--enable-vm-service=8181',
+'--pause-isolates-on-exit'
+]);
 
 //vmArgs
  //PubApp.global('test').runAsync();
-  await Future.wait([
-    Dart.runAsync('test/all.dart',
-        vmArgs: [
-        '--enable-vm-service=8181',
-        '--pause-isolates-on-exit'
-        ]),
-    Pub.global.runAsync('coverage', script: 'collect_coverage', arguments: [
+  return new Future.delayed(new Duration(seconds:30), (){
+    return Future.wait([
+
+    Pub.runAsync('coverage', script: 'collect_coverage', arguments: [
       '--resume-isolates',
       '--uri=http://127.0.0.1:8181/',
       '--out=var/coverage.json',
-      '--wait-paused'
-    ])
-  ]);
-
+     // '--wait-paused'
+    ]).then((e){
+var args = [
+'--in=var/coverage.json',
+'--lcov',
+'--out=var/lcov.info',
+'--packages=.packages',
+'--report-on=${libDir.path}'
+];
+return Pub.global.run('coverage', script: 'format_coverage', arguments: args);
+}).then((r){
 print("coverage collected");
+return coverage();
 
-  var args = [
-    '--in=var/coverage.json',
-    '--lcov',
-    '--out=var/lcov.info',
-    '--packages=.packages',
-    '--report-on=${libDir.path}'
-  ];
-  return Pub.global.run('coverage', script: 'format_coverage', arguments: args);
+}).then((e){
+return exit(0);
+})
+  ]);});
+
+
+
+
 }
