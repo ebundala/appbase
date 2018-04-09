@@ -3,7 +3,7 @@ import 'package:grinder/grinder.dart';
 import '../test/secrets.dart' as secrets;
 
 /// Starts the build system.
-Future<Null> main(List<String> args) => grind(args);
+Future<void> main(List<String> args) => grind(args);
 
 /// Deletes all generated files and reset any saved state.
 @Task('Delete the generated files')
@@ -36,23 +36,31 @@ void lint() => Analyzer.analyze(existingSourceDirs);
 
 /// Runs all the test suites.
 @DefaultTask('Run the tests')
-Future<Null> test() async {
+@Depends(clean)
+Future<void> test() async {
   var keys = await secrets.main();
 
   if (keys['secret'] == null) fail('FIREBASE_API_KEY environment variable not set.');
   if (keys['host'] == null) fail('FIREBASE_HOST environment variable not set.');
+
+
+//vmArgs
+ //PubApp.global('test').runAsync();
   await Future.wait([
     Dart.runAsync('test/all.dart',
         vmArgs: [
-          '--enable-vm-service',
+        '--enable-vm-service=8181',
         '--pause-isolates-on-exit'
         ]),
-    Pub.runAsync('coverage', script: 'collect_coverage', arguments: [
-      '--out=var/coverage.json',
+    Pub.global.runAsync('coverage', script: 'collect_coverage', arguments: [
       '--resume-isolates',
+      '--uri=http://127.0.0.1:8181/',
+      '--out=var/coverage.json',
       '--wait-paused'
     ])
   ]);
+
+print("coverage collected");
 
   var args = [
     '--in=var/coverage.json',
@@ -61,5 +69,5 @@ Future<Null> test() async {
     '--packages=.packages',
     '--report-on=${libDir.path}'
   ];
-  return Pub.runAsync('coverage', script: 'format_coverage', arguments: args);
+  return Pub.global.run('coverage', script: 'format_coverage', arguments: args);
 }

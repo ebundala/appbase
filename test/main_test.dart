@@ -25,6 +25,7 @@ import "secrets.dart" as keys;
 Future<Null> main() async {
   //var dson=new Dartson.JSON();
   var secrets = await keys.main();
+
   void loggerMiddleware(Store<AppState> store, action, NextDispatcher next) {
     // print("[ACTION]:\n ${dson.encode(action).replaceAll(",",",\n").replaceAll(":{",":{\n").replaceAll("{{","{\n{").replaceAll("}}","}\n}")}\n\n"
     //"[STATE]:\n ${dson.encode(store.state).replaceAll(",",",\n").replaceAll(":{",":{\n").replaceAll("{{","{\n{").replaceAll("}}","}\n}")}\n\n"
@@ -44,7 +45,7 @@ Future<Null> main() async {
 
   final store = new Store<AppState>(rootReducer,
       initialState: initialState, middleware: [loggerMiddleware]);
-  ;
+
   UserManager account;
   InstantMessanger messanger;
   ShoppingCart cart;
@@ -947,4 +948,5 @@ Future<Null> main() async {
 /*
 * clean up
 */
+
 }
