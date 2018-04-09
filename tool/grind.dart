@@ -38,13 +38,15 @@ void lint() => Analyzer.analyze(existingSourceDirs);
 @DefaultTask('Run the tests')
 Future<Null> test() async {
   var keys = await secrets.main();
-  print(keys['secret']);
-  if (keys['secret'] == null)
-    fail('FIREBASE_API_KEY environment variable not set.');
+
+  if (keys['secret'] == null) fail('FIREBASE_API_KEY environment variable not set.');
   if (keys['host'] == null) fail('FIREBASE_HOST environment variable not set.');
   await Future.wait([
     Dart.runAsync('test/all.dart',
-        vmArgs: ['--enable-vm-service', '--pause-isolates-on-exit']),
+        vmArgs: [
+          '--enable-vm-service',
+        '--pause-isolates-on-exit'
+        ]),
     Pub.runAsync('coverage', script: 'collect_coverage', arguments: [
       '--out=var/coverage.json',
       '--resume-isolates',
