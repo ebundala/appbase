@@ -80,7 +80,7 @@ var args = [
 '--packages=.packages',
 '--report-on=${libDir.path}'
 ];
-return Pub.global.run('coverage', script: 'format_coverage', arguments: args);
+return Pub.run('coverage', script: 'format_coverage', arguments: args);
 }).then((r){
 print("coverage collected");
 return coverage();
