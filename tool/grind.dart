@@ -43,7 +43,7 @@ var args = [
 '--packages=.packages',
 '--report-on=${libDir.path}'
 ];
-Pub.global.run('coverage', script: 'format_coverage', arguments: args);
+ Pub.run('coverage', script: 'format_coverage', arguments: args);
 }
 
 
@@ -73,14 +73,7 @@ vmArgs: [
       '--out=var/coverage.json',
      // '--wait-paused'
     ]).then((e){
-var args = [
-'--in=var/coverage.json',
-'--lcov',
-'--out=var/lcov.info',
-'--packages=.packages',
-'--report-on=${libDir.path}'
-];
-return Pub.run('coverage', script: 'format_coverage', arguments: args);
+return lcov();
 }).then((r){
 print("coverage collected");
 return coverage();

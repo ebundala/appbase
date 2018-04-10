@@ -10,12 +10,14 @@ notifications:
 
 
 
-#dart_task:
-#   test
+dart_task:
+   test
 #- test: --platform vm
 #- test: --platform chrome
 # Warnings are fatal, but we only analyze the lib/ directory.
 #- dartanalyzer: --fatal-warnings lib
 
-script: pub run grinder test
-after_success: pub run coveralls var/lcov.info
+#script: pub run test
+after_success:
+  pub run grinder lcov
+  pub run coveralls var/lcov.info
