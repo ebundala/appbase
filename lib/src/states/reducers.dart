@@ -237,28 +237,12 @@ AppState rootReducer(AppState prevState, dynamic<Action> action) {
       }
       return prevState;
       break;
+    case ActionsTypes.saveCart:
     case ActionsTypes.editCart:
     case ActionsTypes.addToCart:
       AppState state = prevState;
       //modify state here
       if (state.currentUser.uid != null) {
-        /*CartItemInfo itemInfo = (new CartItemInfo()
-          ..itemId = action.data.itemId
-          ..seller = (new userInfo()
-            ..uid = action.data.seller.uid
-            ..userName = action.data.seller.userName
-            ..avator = action.data.seller.avator)
-          ..title = action.data.title
-          ..priceUnit = action.data.priceUnit
-          ..quantity = action.data.quantity);
-
-        if (state.shoppingCart == null) {
-          state.shoppingCart = new Cart();
-        }
-        state.shoppingCart.userName = state.currentUser.displayName;
-        state.shoppingCart.avator = state.currentUser.photoUrl;
-        state.shoppingCart.uid = state.currentUser.uid;
-        state.shoppingCart.items[itemInfo.itemId] = itemInfo;*/
         state.shoppingCart=action.data;
         return state;
       }
@@ -275,15 +259,8 @@ AppState rootReducer(AppState prevState, dynamic<Action> action) {
 
       break;
 
-    case ActionsTypes.saveCart:
-      AppState state = prevState;
-      //modify state here
-      if (state.currentUser.uid != null) {
-        //todo save cart here
-        return state;
-      }
-      return prevState;
-      break;
+
+
     case ActionsTypes.deleteCart:
       AppState state = prevState;
       //modify state here

@@ -122,6 +122,7 @@ enum OrderState {
   canceled,
   delivered,
   returned,
+  unknown
 }
 
 class Order extends userInfo {

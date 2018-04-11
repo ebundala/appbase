@@ -321,22 +321,18 @@ class ShoppingCart extends AppBase{
   }
   Map _cartToMap(CartItemInfo info,cart){
     User aUser=store.state.currentUser;
-
-
     Map cartMap={
       "uid":aUser.uid,
       "userName":aUser.displayName,
       "avator":aUser.photoUrl,
       "grandTotal":0.0
-
-
     };
-    if(info!=null){
-       var list=new Map();
+
+    var list=new Map();
       if ( cart!= null)
       {
         cart.items.forEach((key,val){
-          cartMap["grandTotal"]+=(val.quantity*val.priceUnit);
+
           list["$key"]={
             "itemId":val.itemId,
             "title":val.title,
@@ -353,8 +349,8 @@ class ShoppingCart extends AppBase{
         });
       }
 
-      cartMap["grandTotal"]+=(info.quantity*info.priceUnit);
 
+    if(info!=null){
      list[info.itemId]={
         "itemId":info.itemId,
         "title":info.title,
@@ -368,14 +364,54 @@ class ShoppingCart extends AppBase{
           "avator":info.seller.avator
         }
       };
-       cartMap["items"]=list;
-
-
     }
+    cartMap["items"]=list;
+    cartMap["items"].forEach((key,val){
+      cartMap["grandTotal"]+=(val["subTotal"]);
+    });
 
     return cartMap;
   }
 
+
+  Future<Cart> editCart(CartItemInfo cartItem) async{
+    logInfo('editCart');
+    try{
+       var cart=await addToCart(cartItem);
+       if(cart!=null){
+         store.dispatch(new Action(type: ActionsTypes.editCart, data: cart));
+         return cart;
+       }
+       else{
+         throw new AppError(actionType: ActionsTypes.editCart,payload: cartItem,message: "failed to edit cart");
+       }
+    }catch(e,st){
+      logError(e,ActionsTypes.editCart,st);
+    }
+  }
+  Future<Cart> saveCart(Cart cart) async{
+    logInfo('saveCart');
+    try{
+      User aUser=store.state.currentUser;
+
+
+        ;
+
+        var cartMap=_cartToMap(null,cart);
+
+        await _cartRef.child(aUser.uid).set(cartMap);
+        var cartVal=await _cartRef.child(aUser.uid).get();
+        if(cartVal!=null){
+          var cartInst=_cartInfoChanged(cartVal);
+            store.dispatch(new Action(type: ActionsTypes.saveCart, data: cartInst));
+        }
+          else{
+            throw new AppError(actionType: ActionsTypes.saveCart,payload: cart,message: "failed to save your cart");
+          }
+    }catch(e,st){
+      logError(e,ActionsTypes.saveCart,st);
+    }
+  }
   void deleteItem(ItemInfo item) {
     logInfo('deleteItem');
     try{
@@ -398,25 +434,9 @@ class ShoppingCart extends AppBase{
     store.dispatch(new Action(type: ActionsTypes.removeFromCart, data: item));
   }
 
-  void editCart(CartItemInfo cartItem) {
-    logInfo('editCart');
-    try{
 
-    }catch(e,st){
-      logError(e,ActionsTypes.editCart,st);
-    }
-    store.dispatch(new Action(type: ActionsTypes.editCart, data: cartItem));
-  }
 
-  void saveCart(Cart cart) {
-    logInfo('saveCart');
-    try{
 
-    }catch(e,st){
-      logError(e,ActionsTypes.saveCart,st);
-    }
-    store.dispatch(new Action(type: ActionsTypes.saveCart, data: cart));
-  }
 
   void deleteCart() {
     logInfo('deleteCart');
@@ -500,34 +520,131 @@ class ShoppingCart extends AppBase{
       logError(e,ActionsTypes.checkout,st);
     }
   }
-  void confirmOrder(Order order) {
+  _orderStatus(status){
+    switch(status){
+      case "OrderState.waiting":
+        return OrderState.waiting;
+      case "OrderState.canceled":
+        return OrderState.canceled;
+      case "OrderState.delivered":
+        return OrderState.delivered;
+      case "OrderState.returned":
+        return OrderState.returned;
+      case "OrderState.completed":
+        return OrderState.completed;
+      default:
+        return OrderState.unknown;
+    }
+  }
+  Map _orderToMap(Order info){
+    Map orderMap={
+      "orderId":info.orderId,
+      "userName":info.userName,
+      "avator":info.avator,
+      "uid":info.uid,
+      "status":info.status.toString(),
+      "cart":_cartToMap(null,info.cart)
+    };
+    return orderMap;
+  }
+  Order _orderInfoChanged(info){
+
+    Order order = (new Order()
+      ..userName = info["userName"]
+      ..uid = info["uid"]
+      ..avator = info["avator"]
+      ..orderId = info["orderId"]
+      ..status = _orderStatus(info["status"])
+      ..cart = _cartInfoChanged(info["cart"]));
+
+    return order;
+  }
+  Future<Order> confirmOrder(Cart _cart) async{
     logInfo('confirmOrder');
-    try{
+    try {
+      Order order = (new Order()
+        ..userName = _cart.userName
+        ..uid = _cart.uid
+        ..avator = _cart.avator
+        ..orderId = "key" //todo generate this key
+        ..status = OrderState.waiting
+        ..cart = (new Cart()
+          ..avator = _cart.avator
+          ..uid = _cart.uid
+          ..invoiceNo = _cart.invoiceNo //todo generate invoice here
+          ..userName = _cart.userName));
+
+      if (_cart.items.length > 0) {
+        _cart.items.forEach((key, item) {
+          order.cart.grandTotal += (item.priceUnit * item.quantity);
+          order.cart.items[key] = (new CartItemInfo()
+            ..title = item.title
+            ..quantity = item.quantity
+            ..featuredImage = item.featuredImage
+            ..subTotal = (item.quantity * item.priceUnit)
+            ..priceUnit = item.priceUnit
+            ..seller = (new userInfo()
+              ..userName = item.seller.userName
+              ..uid = item.seller.uid
+              ..avator = item.seller.avator));
+        });
+      }
+      var orderMap = _orderToMap(order);
+      await _ordersRef.child(order.orderId).set(orderMap);
+      var orderVal = await _ordersRef.child(order.orderId).get();
+      if (orderVal != null) {
+        var orderInstance=_orderInfoChanged(orderVal);
+      store.dispatch(new Action(type: ActionsTypes.confirmOrder, data: orderInstance));
+      return orderInstance;
+        }
+        else{
+        throw new AppError(actionType: ActionsTypes.confirmOrder,payload: order,message: "failed to confirm your order");
+      }
 
     }catch(e,st){
       logError(e,ActionsTypes.confirmOrder,st);
     }
-    store.dispatch(new Action(type: ActionsTypes.confirmOrder, data: order));
+ return new Order();
   }
 
-  void cancelOrder(Order order) {
+  Future<bool> cancelOrder(Order order) async{
     logInfo('cancelOrder');
     try{
 
+      await _ordersRef.child(order.orderId).set(null);
+     var res= await _ordersRef.child(order.orderId).get();
+      if(res==null){
+        store.dispatch(new Action(type: ActionsTypes.cancelOrder, data: order));
+        return true;
+      }
+      else{
+        throw new AppError(actionType: ActionsTypes.cancelOrder,payload: order,message: "failed to cancel your order");
+      }
     }catch(e,st){
       logError(e,ActionsTypes.cancelOrder,st);
     }
-    store.dispatch(new Action(type: ActionsTypes.cancelOrder, data: order));
+   return false;
   }
 
-  void editOrder(Order order) {
+  Future<Order> editOrder(Order order) async{
     logInfo('editOrder');
     try{
 
+      var orderMap = _orderToMap(order);
+      await _ordersRef.child(order.orderId).set(orderMap);
+    var orderVal = await _ordersRef.child(order.orderId).get();
+    if (orderVal != null) {
+    var orderInstance=_orderInfoChanged(orderVal);
+    store.dispatch(new Action(type: ActionsTypes.editOrder, data: order));
+    return orderInstance;
+    }
+    else{
+    throw new AppError(actionType: ActionsTypes.editOrder,payload: order,message: "failed to edit your order");
+    }
     }catch(e,st){
       logError(e,ActionsTypes.editOrder,st);
     }
-    store.dispatch(new Action(type: ActionsTypes.editOrder, data: order));
+    return new Order();
   }
 
 

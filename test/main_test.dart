@@ -534,7 +534,7 @@ Future<Null> main() async {
         ..priceUnit = item.priceUnit
         ..quantity = 35);
 
-      await cart.addToCart(iteminfo);
+     var prod= await cart.addToCart(iteminfo);
       expect(store.state.shoppingCart.userName,
           equals(store.state.currentUser.displayName));
       expect(store.state.shoppingCart.uid, equals(store.state.currentUser.uid));
@@ -546,67 +546,62 @@ Future<Null> main() async {
           equals(iteminfo.title));
       expect(store.state.shoppingCart.items[iteminfo.itemId].seller.uid,
           equals(iteminfo.seller.uid));
+      expect(store.state.shoppingCart.grandTotal,
+          equals(prod.grandTotal));
     });
-    /*
-    test("editCart", () {
-      CartItemInfo item = (new CartItemInfo()
-        ..itemId = "xcvbbnbj89jk"
+
+    test("editCart", () async{
+      Item item=store.state.items["xcvbbnbj89jk"];
+      CartItemInfo iteminfo = (new CartItemInfo()
+        ..itemId = item.itemId
         ..seller = (new userInfo()
           ..uid = store.state.currentUser.uid
           ..userName = store.state.currentUser.displayName
           ..avator = store.state.currentUser.photoUrl)
-        ..title = "some product again"
+        ..title = item.title
         ..priceUnit = 989.00
         ..quantity = 99);
 
-      cart.editCart(item);
+      var prod=await cart.editCart(iteminfo);
       expect(store.state.shoppingCart.userName,
           equals(store.state.currentUser.displayName));
       expect(store.state.shoppingCart.uid, equals(store.state.currentUser.uid));
-      expect(store.state.shoppingCart.items[item.itemId].priceUnit,
-          equals(item.priceUnit));
-      expect(store.state.shoppingCart.items[item.itemId].quantity,
-          equals(item.quantity));
-      expect(store.state.shoppingCart.items[item.itemId].title,
-          equals(item.title));
-      expect(store.state.shoppingCart.items[item.itemId].seller.uid,
-          equals(item.seller.uid));
+      expect(store.state.shoppingCart.items[iteminfo.itemId].priceUnit,
+          equals(iteminfo.priceUnit));
+      expect(store.state.shoppingCart.items[iteminfo.itemId].quantity,
+          equals(iteminfo.quantity));
+      expect(store.state.shoppingCart.items[iteminfo.itemId].title,
+          equals(iteminfo.title));
+      expect(store.state.shoppingCart.items[iteminfo.itemId].seller.uid,
+          equals(iteminfo.seller.uid));
+      expect(store.state.shoppingCart.grandTotal,
+          equals(prod.grandTotal));
     });
-    test("saveCart", () {
+
+    test("saveCart", () async{
       expect(true, equals(true));
+      Cart _cart=store.state.shoppingCart;
+
+
+      var prod=await cart.saveCart(_cart);
+      expect(store.state.shoppingCart.userName,
+          equals(_cart.userName));
+      expect(store.state.shoppingCart.uid, equals(_cart.uid));
+
+      expect(store.state.shoppingCart.items.length,
+          equals(_cart.items.length));
+
+      expect(store.state.shoppingCart.grandTotal,
+          equals(_cart.grandTotal));
+
     });
 
-    test("confirmOrder", () {
+
+    test("confirmOrder", () async{
       Cart _cart = store.state.shoppingCart;
-      Order order = (new Order()
-        ..userName = _cart.userName
-        ..uid = _cart.uid
-        ..avator = _cart.avator
-        ..orderId = "key"
-        ..status = OrderState.waiting
-        ..cart = (new Cart()
-          ..avator = _cart.avator
-          ..uid = _cart.uid
-          ..invoiceNo = _cart.invoiceNo
-          ..userName = _cart.userName));
 
-      if (_cart.items.length > 0) {
-        _cart.items.forEach((key, item) {
-          order.cart.grandTotal += (item.priceUnit * item.quantity);
-          order.cart.items[key] = (new CartItemInfo()
-            ..title = item.title
-            ..quantity = item.quantity
-            ..featuredImage = item.featuredImage
-            ..subTotal = (item.quantity * item.priceUnit)
-            ..priceUnit = item.priceUnit
-            ..seller = (new userInfo()
-              ..userName = item.seller.userName
-              ..uid = item.seller.uid
-              ..avator = item.seller.avator));
-        });
-      }
 
-      cart.confirmOrder(order);
+     var order = await cart.confirmOrder(_cart);
 
       expect(store.state.orders.length, equals(1));
       expect(store.state.orders[order.orderId].uid, equals(order.uid));
@@ -634,14 +629,15 @@ Future<Null> main() async {
           isTrue);
     });
 
-    test("editOrder", () {
+
+    test("editOrder", () async{
       Cart _cart = store.state.shoppingCart;
       Order order = (new Order()
         ..userName = _cart.userName
         ..uid = _cart.uid
         ..avator = _cart.avator
         ..orderId = "key"
-        ..status = OrderState.waiting
+        ..status = OrderState.completed
         ..cart = (new Cart()
           ..avator = _cart.avator
           ..uid = _cart.uid
@@ -664,16 +660,16 @@ Future<Null> main() async {
         });
       }
 
-      cart.editOrder(order);
+    var editedOrder=  await cart.editOrder(order);
 
       expect(store.state.orders.length, equals(1));
-      expect(store.state.orders[order.orderId].uid, equals(order.uid));
+      expect(store.state.orders[order.orderId].uid, equals(editedOrder.uid));
       expect(
-          store.state.orders[order.orderId].userName, equals(order.userName));
-      expect(store.state.orders[order.orderId].avator, equals(order.avator));
-      expect(store.state.orders[order.orderId].orderId, equals(order.orderId));
+          store.state.orders[order.orderId].userName, equals(editedOrder.userName));
+      expect(store.state.orders[order.orderId].avator, equals(editedOrder.avator));
+      expect(store.state.orders[order.orderId].orderId, equals(editedOrder.orderId));
       expect(
-          store.state.orders[order.orderId].cart.uid, equals(order.cart.uid));
+          store.state.orders[order.orderId].cart.uid, equals(editedOrder.cart.uid));
       expect(store.state.orders[order.orderId].cart.userName,
           equals(order.cart.userName));
       expect(store.state.orders[order.orderId].cart.avator,
@@ -692,7 +688,7 @@ Future<Null> main() async {
           isTrue);
     });
 
-    test("cancelOrder", () {
+   test("cancelOrder", () async{
       Cart _cart = store.state.shoppingCart;
       Order order = (new Order()
         ..userName = _cart.userName
@@ -722,14 +718,15 @@ Future<Null> main() async {
         });
       }
 
-      cart.cancelOrder(order);
+     await cart.cancelOrder(order);
 
       expect(store.state.orders.length, equals(0));
 
       expect(store.state.orders.containsKey(order.orderId), isFalse);
       expect(store.state.orders.containsValue(order), isFalse);
     });
-    test("checkout", () {
+
+    /*test("checkout", () {
       // expect(true,equals(false));
     });
 
