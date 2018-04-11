@@ -4,24 +4,22 @@ import "package:redux/redux.dart";
 import "package:firebase_dart/firebase_dart.dart";
 
 // instant messanger component
-import "../states/state.dart";
-import "../states/actionsTypes.dart";
-//import "../states/user/userState.dart";
-import "../states/IM/instantMessangerState.dart";
-//import "../states/store.dart";
 
-class InstantMessanger {
-  Store<AppState> store;
-  final Logger log = new Logger('InstantMessanger');
-  final ref;
+import "../states/actionsTypes.dart";
+
+import "../states/IM/instantMessangerState.dart";
+import 'AppBase.dart';
+
+class InstantMessanger extends AppBase{
   var _chatRef;
   var _messagesRef;
-  InstantMessanger({this.store, this.ref}) {
+  InstantMessanger({store,appRef}):super(store:store,className:'InstantMessanger',ref:appRef) {
     _chatRef = ref.child("chats");
     _messagesRef = ref.child("messages");
   }
 
   Future<Chat> createChat(Chat chat) async {
+    logInfo('createChat');
     var chatRef = _chatRef.child(chat.chatId);
     Chat newChat;
     try {
@@ -69,6 +67,7 @@ class InstantMessanger {
   }
 
   Chat _chatInfoChanged(chatData) {
+    logInfo('_chatInfoChanged');
     Chat newChat = (new Chat()
       ..chatId = chatData["chatId"]
       ..timestamp = chatData["timestamp"]
@@ -100,6 +99,7 @@ class InstantMessanger {
   }
 
   Message _messageInfoChanged(dynamic messageData) {
+    logInfo('_messageInfoChanged');
     Message newMessage = (new Message()
       ..chatId = messageData["chatId"]
       ..timestamp = messageData["timestamp"]
@@ -121,6 +121,7 @@ class InstantMessanger {
   }
 
   Future<bool> deleteChat(Chat chat) async {
+    logInfo('deleteChat');
     try {
       await _chatRef.child(chat.chatId).set(null);
       var deletedChat = await _chatRef.child(chat.chatId).get();
@@ -139,8 +140,11 @@ class InstantMessanger {
     }
   }
 
-  void getContacts() {}
+  void getContacts() {
+    logInfo('getContacts');
+  }
   Future<bool> sendMessage(Message msg) async {
+    logInfo('sendMessage');
     var msgData;
     try {
       await _messagesRef.child(msg.messageId).set({
@@ -193,6 +197,7 @@ class InstantMessanger {
   }
 
   Future<bool> deleteMessage(Message msg) async {
+    logInfo('deleteMessage');
     try {
       await _messagesRef.child(msg.messageId).set(null);
       var deletedMsg = await _messagesRef.child(msg.messageId).get();
@@ -212,6 +217,7 @@ class InstantMessanger {
   }
 
   Future<bool> addParticipant(Participate participation) async {
+    logInfo('addParticipant');
     var _participation, participantInfo;
 
     try {
@@ -252,6 +258,7 @@ class InstantMessanger {
   }
 
   Participant _participantInfoChanged(participantInfo) {
+    logInfo('_participantInfoChanged');
     Participant ps = participantInfo["status"]
         ? (new Participant()
           ..userName = participantInfo["userName"]
@@ -265,6 +272,7 @@ class InstantMessanger {
   }
 
   Future<bool> removeParticipant(Participate participation) async {
+    logInfo('removeParticipant');
     var _participation, participantInfo;
 
     try {
@@ -304,12 +312,11 @@ class InstantMessanger {
     }
   }
 
-  void quoteMessage() {}
-  void forwardMessage() {}
-  void logError(dynamic e, [ActionsTypes actionType, dynamic stackTrace]) {
-    log.severe('error encountered!', e, stackTrace);
-    store.dispatch(new Action(
-        type: ActionsTypes.onError,
-        data: (e is! AppError ? {"payload": e, "actionType": actionType} : e)));
+  void quoteMessage() {
+    logInfo('quoteMessage');
   }
+  void forwardMessage() {
+    logInfo('forwardMessage');
+  }
+
 }

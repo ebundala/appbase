@@ -242,7 +242,7 @@ AppState rootReducer(AppState prevState, dynamic<Action> action) {
       AppState state = prevState;
       //modify state here
       if (state.currentUser.uid != null) {
-        CartItemInfo itemInfo = (new CartItemInfo()
+        /*CartItemInfo itemInfo = (new CartItemInfo()
           ..itemId = action.data.itemId
           ..seller = (new userInfo()
             ..uid = action.data.seller.uid
@@ -258,7 +258,8 @@ AppState rootReducer(AppState prevState, dynamic<Action> action) {
         state.shoppingCart.userName = state.currentUser.displayName;
         state.shoppingCart.avator = state.currentUser.photoUrl;
         state.shoppingCart.uid = state.currentUser.uid;
-        state.shoppingCart.items[itemInfo.itemId] = itemInfo;
+        state.shoppingCart.items[itemInfo.itemId] = itemInfo;*/
+        state.shoppingCart=action.data;
         return state;
       }
       return prevState;

@@ -8,7 +8,7 @@ import "package:redux/redux.dart";
 import "../states/state.dart";
 import "../states/actionsTypes.dart";
 import "../states/user/userState.dart";
-
+import 'AppBase.dart';
 //import "../states/store.dart" show Store;
 
 //var dson=new Dartson.JSON();
@@ -21,15 +21,13 @@ enum SIGNIN_METHODS {
   EmailProvider
 }
 
-class UserManager {
-  Store<AppState> store;
-  final ref;
+class UserManager extends  AppBase{
   var _usersRef;
   final secret;
   var _token;
-  final Logger log = new Logger('UserManager');
 
-  UserManager({this.store, this.ref, this.secret = "x"}) {
+
+  UserManager({store, appRef, this.secret = "x"}):super(className:'UserManager',store:store,ref:appRef) {
     _usersRef = ref.child("users");
 
     // .onChildAdded.listen((e) {
@@ -39,7 +37,7 @@ class UserManager {
 
   Future<bool> login(
       {User aUser, SIGNIN_METHODS provider, bool reg = false}) async {
-    log.fine("Logging user in ");
+   logInfo("Logging user in ");
     User authenticatedUser;
     try {
       switch (provider) {
@@ -113,12 +111,12 @@ class UserManager {
       return false;
     }
     // print(dson.encode(authenticatedUser));
-    store.dispatch(
-        new Action(type: ActionsTypes.login, data: authenticatedUser));
+    store.dispatch(new Action(type: ActionsTypes.login, data: authenticatedUser));
     return true;
   }
 
   User _userInfoChanged(dynamic userData) {
+    logInfo("_userInfoChanged");
     User newUser = (new User()
       ..uid = userData["uid"]
       ..displayName = userData["displayName"]
@@ -155,10 +153,12 @@ class UserManager {
   }
 
   Future<bool> register({User aUser, SIGNIN_METHODS provider}) async {
+    logInfo("register");
     return await login(aUser: aUser, provider: provider, reg: true);
   }
 
   Future<bool> givePermission(permission perm) async {
+    logInfo("givePermission");
     User aUser = store.state.currentUser;
 
     try {
@@ -193,6 +193,7 @@ class UserManager {
   }
 
   Future<bool> revokeUserPermission(revokePermission perm) async {
+    logInfo("revokeUserPermission");
     User aUser = store.state.currentUser;
 
     try {
@@ -227,6 +228,7 @@ class UserManager {
   }
 
   Future<bool> followUser(follow info) async {
+    logInfo("followUser");
     User aUser = store.state.currentUser;
 
     try {
@@ -266,6 +268,7 @@ class UserManager {
   }
 
   Future<bool> unfollowUser(unfollow info) async {
+    logInfo("unfollowUser");
     User aUser = store.state.currentUser;
 
     try {
@@ -305,10 +308,12 @@ class UserManager {
   }
 
   void onUserInfoChanged(User aUser) {
+    logInfo("onUserInfoChanged");
     store.dispatch(new Action(type: ActionsTypes.userInfoChanged, data: aUser));
   }
 
   Future<bool> logout() async {
+    logInfo("revokeUserPermission");
     User aUser = store.state.currentUser;
     try {
       if (ref.auth != null || aUser != null) {
@@ -333,13 +338,9 @@ class UserManager {
   }
 
   void deleteUser() {
+    logInfo("deleteUser");
     store.dispatch(new Action(type: ActionsTypes.deleteUser));
   }
 
-  void logError(dynamic e, [ActionsTypes actionType, dynamic stackTrace]) {
-    log.severe('error encountered!', e, stackTrace);
-    store.dispatch(new Action(
-        type: ActionsTypes.onError,
-        data: (e is! AppError ? {"payload": e, "actionType": actionType} : e)));
-  }
+
 }

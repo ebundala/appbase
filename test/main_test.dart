@@ -67,10 +67,9 @@ Future<Null> main() async {
     //    dbReference.child("test").set({"state":dson.encode(state)});
     //    });
 
-    account = new UserManager(
-        store: store, ref: appRootRef, secret: secrets["secret"]);
-    messanger = new InstantMessanger(store: store, ref: appRootRef);
-    cart = new ShoppingCart(store: store);
+    account = new UserManager(store: store, appRef: appRootRef, secret: secrets["secret"]);
+    messanger = new InstantMessanger(store: store, appRef: appRootRef);
+    cart = new ShoppingCart(store: store,appRef:appRootRef);
     billing = new BillingManager();
     cms = new ContentManager();
     ads = new AdsManager();
@@ -387,7 +386,7 @@ Future<Null> main() async {
 */
 
   group("[SHOPPING_CART]:-", () {
-    test("createItem", () {
+    test("createItem", () async{
       Item item = (new Item()
         ..itemId = "xcvbbnbj89jk"
         ..seller = (new userInfo()
@@ -417,10 +416,10 @@ Future<Null> main() async {
             ..name = "smartphones")
         }
         ..auctionInfo = null);
-      cart.createItem(item);
+     await cart.createItem(item);
+      expect(store.state.items.length, equals(1));
       expect(store.state.items[item.itemId].itemId, equals(item.itemId));
-      expect(
-          store.state.items[item.itemId].seller.uid, equals(item.seller.uid));
+      expect(store.state.items[item.itemId].seller.uid, equals(item.seller.uid));
       expect(store.state.items[item.itemId].seller.userName,
           equals(item.seller.userName));
       expect(store.state.items[item.itemId].seller.avator,
@@ -431,13 +430,15 @@ Future<Null> main() async {
       expect(store.state.items[item.itemId].quantitySold,
           equals(item.quantitySold));
       expect(store.state.items[item.itemId].qUnits, equals(item.qUnits));
+
       expect(store.state.items[item.itemId].condition, equals(item.condition));
       expect(store.state.items[item.itemId].type, equals(item.type));
       expect(store.state.items[item.itemId].mode, equals(item.mode));
+
       expect(
           store.state.items[item.itemId].description, equals(item.description));
-      expect(store.state.items[item.itemId].additionalImages[1],
-          equals(item.additionalImages[1]));
+      expect(store.state.items[item.itemId].additionalImages.length,
+          equals(item.additionalImages.length));
       expect(store.state.items[item.itemId].featuredImage,
           equals(item.featuredImage));
       expect(store.state.items[item.itemId].categories["123"].name,
@@ -451,7 +452,7 @@ Future<Null> main() async {
       expect(store.state.items[item.itemId].subCategories["456"].catId,
           equals(item.subCategories["456"].catId));
     });
-    test("editItem", () {
+    test("editItem", () async{
       userInfo aUser = (new userInfo()
         ..uid = store.state.currentUser.uid
         ..userName = store.state.currentUser.displayName
@@ -459,17 +460,17 @@ Future<Null> main() async {
       Item item = (new Item()
         ..itemId = "xcvbbnbj89jk"
         ..seller = aUser
-        ..title = "some product"
+        ..title = "some product edited"
         ..priceUnit = 98989889.00
         ..quantity = 90
         ..quantitySold = 80
-        ..qUnits = "pieces"
-        ..condition = ItemCondition.brandNew
-        ..type = ItemType.physical
-        ..mode = SellMode.directSell
+        ..qUnits = "pairs"
+        ..condition = ItemCondition.secondHand
+        ..type = ItemType.digital
+        ..mode = SellMode.auctionSell
         ..description = "something description"
-        ..featuredImage = "someItemphoto.jpg"
-        ..additionalImages = ["someAditionalPhoto.jpg", "secondPhoto.jpg"]
+        ..featuredImage = "someItemphoto.png"
+        ..additionalImages = ["someAditionalPhoto.jpg", "secondPhoto.jpg","thirdImage.gif"]
         ..categories = {
           "123": (new Category()
             ..name = "electronic"
@@ -481,8 +482,11 @@ Future<Null> main() async {
             ..catId = "456"
             ..name = "smartphones")
         }
-        ..auctionInfo = null);
-      cart.editItem(item);
+        );
+
+
+      Item editedItem=await cart.editItem(item);
+      expect(store.state.items.length, equals(1));
       expect(store.state.items[item.itemId].itemId, equals(item.itemId));
       expect(
           store.state.items[item.itemId].seller.uid, equals(item.seller.uid));
@@ -515,32 +519,35 @@ Future<Null> main() async {
           equals(item.subCategories["456"].name));
       expect(store.state.items[item.itemId].subCategories["456"].catId,
           equals(item.subCategories["456"].catId));
+
+
+
+
     });
 
-    test("addToCart", () {
-      CartItemInfo item = (new CartItemInfo()
-        ..itemId = "xcvbbnbj89jk"
-        ..seller = (new userInfo()
-          ..uid = store.state.currentUser.uid
-          ..userName = store.state.currentUser.displayName
-          ..avator = store.state.currentUser.photoUrl)
-        ..title = "some product"
-        ..priceUnit = 98989889.00
-        ..quantity = 89);
+    test("addToCart", () async{
+      Item item=store.state.items["xcvbbnbj89jk"];
+      CartItemInfo iteminfo = (new CartItemInfo()
+        ..itemId = item.itemId
+        ..seller = item.seller
+        ..title = item.title
+        ..priceUnit = item.priceUnit
+        ..quantity = 35);
 
-      cart.addToCart(item);
+      await cart.addToCart(iteminfo);
       expect(store.state.shoppingCart.userName,
           equals(store.state.currentUser.displayName));
       expect(store.state.shoppingCart.uid, equals(store.state.currentUser.uid));
-      expect(store.state.shoppingCart.items[item.itemId].priceUnit,
+      expect(store.state.shoppingCart.items[iteminfo.itemId].priceUnit,
           equals(item.priceUnit));
-      expect(store.state.shoppingCart.items[item.itemId].quantity,
-          equals(item.quantity));
-      expect(store.state.shoppingCart.items[item.itemId].title,
-          equals(item.title));
-      expect(store.state.shoppingCart.items[item.itemId].seller.uid,
-          equals(item.seller.uid));
+      expect(store.state.shoppingCart.items[iteminfo.itemId].quantity,
+          equals(iteminfo.quantity));
+      expect(store.state.shoppingCart.items[iteminfo.itemId].title,
+          equals(iteminfo.title));
+      expect(store.state.shoppingCart.items[iteminfo.itemId].seller.uid,
+          equals(iteminfo.seller.uid));
     });
+    /*
     test("editCart", () {
       CartItemInfo item = (new CartItemInfo()
         ..itemId = "xcvbbnbj89jk"
@@ -746,8 +753,9 @@ Future<Null> main() async {
       cart.deleteCart();
       expect(store.state.shoppingCart.items.isEmpty, isTrue);
     });
-    test("createAuction", () {
-      Item item = (new Item()
+    test("createAuction", () async{
+      Item item = store.state.items["xcvbbnbj89jk"];
+      (new Item()
         ..itemId = "xcvbbnbj89jk"
         ..seller = (new userInfo()
           ..uid = store.state.currentUser.uid
@@ -801,7 +809,7 @@ Future<Null> main() async {
             ..priceUnit = item.priceUnit
             ..itemId = item.itemId
             ..seller = item.seller)));
-      cart.createAuction(info: info, item: item);
+      await cart.createAuction(info: info, item: item);
       expect(store.state.auctions[item.itemId].auctionId, equals(item.itemId));
       expect(store.state.auctions[item.itemId].seller.uid,
           equals(item.seller.uid));
@@ -929,7 +937,9 @@ Future<Null> main() async {
       // cart.deleteItem(itemInfo);
       // expect(store.state.items[itemInfo],equals(null));
     });
+    */
   });
+
 /*
 * billing management
 */

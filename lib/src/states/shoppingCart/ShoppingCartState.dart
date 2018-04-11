@@ -21,6 +21,7 @@ enum ItemCondition {
   secondHand,
   needRepair,
   unRepairable,
+  unknown
 }
 
 enum ItemType { physical, digital }
