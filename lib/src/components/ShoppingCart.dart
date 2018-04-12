@@ -89,7 +89,7 @@ class ShoppingCart extends AppBase{
   }
   Map _ItemToMap(Item item){
    var itemMap= {
-      "itemId": item.itemId,
+     "itemId": item.itemId,
     "seller": {
     "uid": item.seller.uid,
     "userName": item.seller.userName,
@@ -108,7 +108,7 @@ class ShoppingCart extends AppBase{
     //"additionalImage": item.additionalImages.asMap(),
    // "categories":{},
     // "subCategories": item.subCategories,
-    // "auctionInfo": item.auctionInfo
+   // "auctionInfo": new Map()
   };
 
    if(item.additionalImages.length>0){
@@ -136,6 +136,36 @@ class ShoppingCart extends AppBase{
      itemMap["subCategories"]=list;
    }
 
+   if(item.auctionInfo!=null){
+     logInfo("auctionInfo");
+     itemMap["auctionInfo"]={
+       "auctionId":item.auctionInfo.auctionId,
+       "start":item.auctionInfo.start,
+       "end":item.auctionInfo.end,
+       "status":item.auctionInfo.status,
+       "highestBid":item.auctionInfo.highestBid,
+       "minimumBid":item.auctionInfo.minimumBid,
+        "seller":{
+         "uid":item.auctionInfo.seller.uid,
+         "userName":item.auctionInfo.seller.userName,
+         "avator":item.auctionInfo.seller.avator
+       },
+       "item":{
+         "itemId":item.auctionInfo.item.itemId,
+         "priceUnit":item.auctionInfo.item.priceUnit,
+         "title":item.auctionInfo.item.title,
+         "featuredImage":item.auctionInfo.item.featuredImage,
+         "seller":{
+             "uid":item.auctionInfo.item.seller.uid,
+             "userName":item.auctionInfo.item.seller.userName,
+             "avator":item.auctionInfo.item.seller.avator
+             },
+       }
+     };
+
+
+   }
+   logInfo(itemMap);
    return itemMap;
   }
   Item _itemInfoChanged(itemInfo){
@@ -196,10 +226,12 @@ class ShoppingCart extends AppBase{
     if(itemInfo["auctionInfo"]!=null){
 
         item.auctionInfo=(new AuctionInfo()
-
                             ..start=itemInfo["auctionInfo"]["start"]
                             ..end=itemInfo["auctionInfo"]["end"]
                             ..status=true
+                            ..highestBid=itemInfo["auctionInfo"]["highestBid"]
+                            ..minimumBid=itemInfo["auctionInfo"]["minimumBid"]
+                            ..auctionId=itemInfo["auctionInfo"]["auctionId"]
                             ..seller=(new userInfo()
                               ..uid=itemInfo["auctionInfo"]["seller"]["uid"]
                               ..avator=itemInfo["auctionInfo"]["seller"]["avator"]
@@ -215,38 +247,6 @@ class ShoppingCart extends AppBase{
                                   ..userName=itemInfo["auctionInfo"]["item"]["seller"]["userName"]
                                 )
                             )
-                            ..highestBid=(new Bid()
-                              ..uid=itemInfo["auctionInfo"]["highestBid"]["uid"]
-                              ..avator=itemInfo["auctionInfo"]["highestBid"]["avator"]
-                              ..userName=itemInfo["auctionInfo"]["highestBid"]["userName"]
-                              ..bidValue=itemInfo["auctionInfo"]["highestBid"]["bidValue"]
-                               ..item=(new ItemInfo()
-                                ..itemId=itemInfo["auctionInfo"]["highestBid"]["item"]["itemId"]
-                                ..title=itemInfo["auctionInfo"]["highestBid"]["item"]["title"]
-                                ..priceUnit=itemInfo["auctionInfo"]["highestBid"]["item"]["priceUnit"]
-                                ..seller=(new userInfo()
-                                  ..uid=itemInfo["auctionInfo"]["highestBid"]["item"]["seller"]["uid"]
-                                  ..avator=itemInfo["auctionInfo"]["highestBid"]["item"]["seller"]["avator"]
-                                  ..userName=itemInfo["auctionInfo"]["highestBid"]["item"]["seller"]["userName"]
-                                )
-                            ))
-                            ..minimumBid=(new Bid()
-                              ..uid=itemInfo["auctionInfo"]["minimumBid"]["uid"]
-                              ..avator=itemInfo["auctionInfo"]["minimumBid"]["avator"]
-                              ..userName=itemInfo["auctionInfo"]["minimumBid"]["userName"]
-                              ..bidValue=itemInfo["auctionInfo"]["minimumBid"]["bidValue"]
-                              ..item=(new ItemInfo()
-                                ..itemId=itemInfo["auctionInfo"]["minimumBid"]["item"]["itemId"]
-                                ..title=itemInfo["auctionInfo"]["minimumBid"]["item"]["title"]
-                                ..priceUnit=itemInfo["auctionInfo"]["minimumBid"]["item"]["priceUnit"]
-                                ..seller=(new userInfo()
-                                  ..uid=itemInfo["auctionInfo"]["minimumBid"]["item"]["seller"]["uid"]
-                                  ..avator=itemInfo["auctionInfo"]["minimumBid"]["item"]["seller"]["avator"]
-                                  ..userName=itemInfo["auctionInfo"]["minimumBid"]["item"]["seller"]["userName"]
-                                )
-                              ))
-                            ..auctionId=itemInfo["auctionInfo"]["auctionId"]
-
         );
 
     }
@@ -393,12 +393,7 @@ class ShoppingCart extends AppBase{
     logInfo('saveCart');
     try{
       User aUser=store.state.currentUser;
-
-
-        ;
-
         var cartMap=_cartToMap(null,cart);
-
         await _cartRef.child(aUser.uid).set(cartMap);
         var cartVal=await _cartRef.child(aUser.uid).get();
         if(cartVal!=null){
@@ -424,28 +419,48 @@ class ShoppingCart extends AppBase{
 
 
 
-  void removeFromCart(CartItemInfo item) {
+  Future<Null> removeFromCart(CartItemInfo item) async{
     logInfo('removeFromCart');
     try{
+      User aUser=store.state.currentUser;
+      await _cartRef.child(aUser.uid).child("items").child(item.itemId).set(null);
+      var res=await _cartRef.child(aUser.uid).child("items").child(item.itemId).get();
+      if(res==null){
+
+        store.dispatch(new Action(type: ActionsTypes.removeFromCart, data: item));
+
+        return res;
+      }
+      else{
+        throw new AppError(actionType: ActionsTypes.removeFromCart,payload: item,message: "failed to remove item from your cart");
+      }
 
     }catch(e,st){
       logError(e,ActionsTypes.removeFromCart,st);
     }
-    store.dispatch(new Action(type: ActionsTypes.removeFromCart, data: item));
+
   }
 
 
 
 
 
-  void deleteCart() {
+  Future<bool> deleteCart() async{
     logInfo('deleteCart');
     try{
+      User aUser=store.state.currentUser;
+      await _cartRef.child(aUser.uid).set(null);
+
+      var res=await _cartRef.child(aUser.uid).get();
+      if(res==null) {
+        store.dispatch(new Action(type: ActionsTypes.deleteCart, data: null));
+      }else{
+        throw new AppError(actionType: ActionsTypes.deleteCart,payload: res,message: "failed to clear your cart");
+      }
 
     }catch(e,st){
       logError(e,ActionsTypes.deleteCart,st);
     }
-    store.dispatch(new Action(type: ActionsTypes.deleteCart, data: null));
   }
 
   Future<Auction> createAuction({AuctionInfo info, Item item}) async{
@@ -464,12 +479,130 @@ class ShoppingCart extends AppBase{
         ..minimumBid = info.minimumBid);
        item.auctionInfo=info;
 
+
      var edited=await editItem(item);
-      store.dispatch(new Action(type: ActionsTypes.createAuction, data: auction));
+     logInfo(edited.auctionInfo);
+     var auctionMap=_auctionToMap(auction);
+     await _auctionsRef.child(info.auctionId).set(auctionMap);
+     var auctionVal=await _auctionsRef.child(info.auctionId).get();
+     if(auctionVal!=null){
+       var auctionInstance=_auctionInfoChanged(auctionVal);
+       store.dispatch(new Action(type: ActionsTypes.createAuction, data: auctionInstance));
+       return auctionInstance;
+     }
+     else{
+       throw new AppError(actionType: ActionsTypes.createAuction,payload: info,message: "failed to create auction");
+     }
+
     }catch(e,st){
       logError(e,ActionsTypes.createAuction,st);
     }
+ return new Auction();
+  }
 
+  Map _auctionToMap(Auction auction){
+     Map auctionMap={
+       "start":auction.start,
+       "end":auction.end,
+       "status":auction.status,
+       "auctionId":auction.auctionId,
+       "minimumBid":auction.minimumBid,
+       "highestBid":auction.highestBid,
+       "seller":{
+         "uid":auction.seller.uid,
+         "userName":auction.seller.userName,
+         "avator":auction.seller.avator
+       },
+       "item":{
+         "title":auction.item.title,
+         "featuredImage":auction.item.featuredImage,
+         "priceUnit":auction.item.priceUnit,
+         "itemId":auction.item.itemId,
+         "seller":{
+             "uid":auction.item.seller.uid,
+             "userName":auction.item.seller.userName,
+             "avator":auction.item.seller.avator
+             }
+       },
+
+     };
+     var list= new Map();
+     auction.bids.forEach((key,val){
+       list[key]={
+         "userName":val.userName,
+         "avator":val.avator,
+         "uid":val.uid,
+         "auctionId":val.auctionId,
+         "item":{
+           "title":val.item.title,
+           "priceUnit":val.item.priceUnit,
+           "itemId":val.item.itemId,
+           "featuredImage":val.item.featuredImage,
+           "seller":{
+             "uid":val.item.seller.uid,
+             "userName":val.item.seller.userName,
+             "avator":val.item.seller.avator
+           }
+       }
+     };
+     }
+       );
+     auctionMap["bids"]=list;
+
+     return auctionMap;
+  }
+  Auction _auctionInfoChanged(info){
+    Auction auction= (new Auction()
+        ..auctionId=info["auctionId"]
+        ..start=info["start"]
+        ..end=info["end"]
+        ..status=info["status"]
+        ..minimumBid=info["minimumBid"]
+        ..highestBid=info["highestBid"]
+        ..seller=(new userInfo()
+          ..userName=info["seller"]["userName"]
+          ..avator=info["seller"]["avator"]
+          ..uid=info["seller"]["uid"])
+        ..item=(new ItemInfo()
+            ..featuredImage=info["item"]["featuredImage"]
+            ..itemId=info["itemId"]
+            ..priceUnit=info["item"]["priceUnit"]
+            ..title=info["item"]["title"]
+            ..seller=(new userInfo()
+              ..userName=info["item"]["seller"]["userName"]
+              ..avator=info["item"]["seller"]["avator"]
+              ..uid=info["item"]["seller"]["uid"]
+            )
+        )
+    );
+
+    if(info["bids"]!=null){
+      info["bids"].forEach((key,val){
+
+        auction.bids[key]=(new Bid()
+            ..auctionId=val["auctionId"]
+            ..avator=val["avator"]
+            ..userName=val["userName"]
+            ..uid=val["uid"]
+            ..bidValue=val["bidValue"]
+            ..item=(new ItemInfo()
+              ..featuredImage=val["item"]["featuredImage"]
+              ..itemId=val["itemId"]
+              ..priceUnit=val["item"]["priceUnit"]
+              ..title=info["item"]["title"]
+              ..seller=(new userInfo()
+                ..userName=val["item"]["seller"]["userName"]
+                ..avator=val["item"]["seller"]["avator"]
+                ..uid=val["item"]["seller"]["uid"]
+              )
+            )
+
+        );
+      });
+    }
+
+
+    return auction;
   }
 
   void deleteAuction({Auction auction, Item item}) {
@@ -512,13 +645,20 @@ class ShoppingCart extends AppBase{
     store.dispatch(new Action(type: ActionsTypes.removeBid, data: bid));
   }
 
-  void checkout() {
+  Future<Order> checkout(Cart cart) async{
     logInfo('checkout');
     try{
-
+   var orderConf=await confirmOrder(cart);
+   if(orderConf!=null){
+     return orderConf;
+   }
+   else{
+     throw new AppError(actionType: ActionsTypes.checkout,payload: cart,message: "failed to check out");
+   }
     }catch(e,st){
       logError(e,ActionsTypes.checkout,st);
     }
+    return new Order();
   }
   _orderStatus(status){
     switch(status){

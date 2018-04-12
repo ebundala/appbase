@@ -726,11 +726,39 @@ Future<Null> main() async {
       expect(store.state.orders.containsValue(order), isFalse);
     });
 
-    /*test("checkout", () {
-      // expect(true,equals(false));
+    test("checkout", () async{
+      Cart _cart = store.state.shoppingCart;
+
+
+      var order = await cart.checkout(_cart);
+
+      expect(store.state.orders.length, equals(1));
+      expect(store.state.orders[order.orderId].uid, equals(order.uid));
+      expect(
+          store.state.orders[order.orderId].userName, equals(order.userName));
+      expect(store.state.orders[order.orderId].avator, equals(order.avator));
+      expect(store.state.orders[order.orderId].orderId, equals(order.orderId));
+      expect(
+          store.state.orders[order.orderId].cart.uid, equals(order.cart.uid));
+      expect(store.state.orders[order.orderId].cart.userName,
+          equals(order.cart.userName));
+      expect(store.state.orders[order.orderId].cart.avator,
+          equals(order.cart.avator));
+      expect(store.state.orders[order.orderId].cart.invoiceNo,
+          equals(order.cart.invoiceNo));
+      expect(store.state.orders[order.orderId].cart.grandTotal,
+          equals(order.cart.grandTotal));
+      expect(
+          store.state.orders[order.orderId].cart.items
+              .containsKey("xcvbbnbj89jk"),
+          isTrue);
+      expect(
+          store.state.orders[order.orderId].cart.items
+              .containsValue(order.cart.items["xcvbbnbj89jk"]),
+          isTrue);
     });
 
-    test("removeFromCart", () {
+    test("removeFromCart", () async{
       CartItemInfo item = (new CartItemInfo()
         ..itemId = "xcvbbnbj89jk"
         ..seller = (new userInfo()
@@ -740,16 +768,18 @@ Future<Null> main() async {
         ..title = "some product"
         ..priceUnit = 98989889.00
         ..quantity = 89);
-      cart.removeFromCart(item);
+     var _cart= await cart.removeFromCart(item);
       expect(store.state.shoppingCart.items.containsKey(item.itemId), isFalse);
       expect(store.state.shoppingCart.items.containsValue(item), isFalse);
       expect(store.state.shoppingCart.items.length, equals(0));
     });
 
-    test("deleteCart", () {
-      cart.deleteCart();
+    test("deleteCart", () async{
+     await cart.deleteCart();
       expect(store.state.shoppingCart.items.isEmpty, isTrue);
+     expect(store.state.shoppingCart.grandTotal, equals(0.0));
     });
+
     test("createAuction", () async{
       Item item = store.state.items["xcvbbnbj89jk"];
       (new Item()
@@ -781,6 +811,7 @@ Future<Null> main() async {
             ..name = "smartphones")
         }
         ..auctionInfo = null);
+
       AuctionInfo info = (new AuctionInfo()
         ..seller = item.seller
         ..item = (new ItemInfo()
@@ -792,20 +823,11 @@ Future<Null> main() async {
         ..start = 888
         ..end = 9000000
         ..status = true
-        ..highestBid = (new Bid()
-          ..bidValue = (item.priceUnit * 5)
-          ..item = (new ItemInfo()
-            ..title = item.title
-            ..priceUnit = item.priceUnit
-            ..itemId = item.itemId
-            ..seller = item.seller))
-        ..minimumBid = (new Bid()
-          ..bidValue = item.priceUnit
-          ..item = (new ItemInfo()
-            ..title = item.title
-            ..priceUnit = item.priceUnit
-            ..itemId = item.itemId
-            ..seller = item.seller)));
+        ..highestBid =  (item.priceUnit * 5)
+
+        ..minimumBid = ( item.priceUnit
+          ));
+
       await cart.createAuction(info: info, item: item);
       expect(store.state.auctions[item.itemId].auctionId, equals(item.itemId));
       expect(store.state.auctions[item.itemId].seller.uid,
@@ -820,12 +842,12 @@ Future<Null> main() async {
       expect(store.state.auctions[item.itemId].start, equals(info.start));
       expect(store.state.auctions[item.itemId].end, equals(info.end));
       expect(store.state.auctions[item.itemId].status, equals(info.status));
-      expect(store.state.auctions[item.itemId].highestBid.bidValue,
-          equals(info.highestBid.bidValue));
-      expect(store.state.auctions[item.itemId].minimumBid.bidValue,
-          equals(info.minimumBid.bidValue));
+      expect(store.state.auctions[item.itemId].highestBid,
+          equals(info.highestBid));
+      expect(store.state.auctions[item.itemId].minimumBid,
+          equals(info.minimumBid));
     });
-    test("placeBid", () {
+   /* test("placeBid", () {
       var aUser = store.state.currentUser;
       var item = store.state.items["xcvbbnbj89jk"];
       Bid aBid = (new Bid()

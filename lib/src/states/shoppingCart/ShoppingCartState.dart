@@ -33,8 +33,8 @@ class AuctionInfo {
   int start;
   int end;
   bool status;
-  Bid highestBid;
-  Bid minimumBid;
+  double highestBid;
+  double minimumBid;
   userInfo seller;
   ItemInfo item;
   //AuctionInfo({this.id,this.start,this.end});
@@ -45,8 +45,8 @@ class Auction extends AuctionInfo {
   int start;
   int end;
   bool status;
-  Bid highestBid;
-  Bid minimumBid;
+  double highestBid;
+  double minimumBid;
   userInfo seller;
   ItemInfo item;
   //map usersid and their bids

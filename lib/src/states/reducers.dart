@@ -237,6 +237,7 @@ AppState rootReducer(AppState prevState, dynamic<Action> action) {
       }
       return prevState;
       break;
+
     case ActionsTypes.saveCart:
     case ActionsTypes.editCart:
     case ActionsTypes.addToCart:
@@ -266,6 +267,7 @@ AppState rootReducer(AppState prevState, dynamic<Action> action) {
       //modify state here
       if ((state.currentUser.uid != null) && (state.shoppingCart != null)) {
         state.shoppingCart.items.clear();
+        state.shoppingCart.grandTotal=0.0;
 
         return state;
       }
@@ -293,16 +295,8 @@ AppState rootReducer(AppState prevState, dynamic<Action> action) {
           ..start = action.data.start
           ..end = action.data.end
           ..status = action.data.status
-          ..highestBid = (new Bid()
-            ..avator = action.data.highestBid.avator
-            ..bidValue = action.data.highestBid.bidValue
-            ..userName = action.data.highestBid.userName
-            ..item = _itemInfo)
-          ..minimumBid = (new Bid()
-            ..avator = action.data.minimumBid.avator
-            ..bidValue = action.data.minimumBid.bidValue
-            ..userName = action.data.minimumBid.userName
-            ..item = _itemInfo)
+          ..highestBid = action.data.highestBid
+          ..minimumBid = action.data.minimumBid
           ..bids = action.data.bids);
         return state;
       }
