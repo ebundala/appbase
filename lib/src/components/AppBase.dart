@@ -16,6 +16,9 @@ class  AppBase {
   }
    void logError(dynamic e, [ActionsTypes actionType, dynamic stackTrace]) {
      log.severe('error encountered!', e, stackTrace);
+     if(e is AppError){
+       log.severe(e.message, e, stackTrace);
+     }
      store.dispatch(new Action(
          type: ActionsTypes.onError,
          data: (e is! AppError ? {"payload": e, "actionType": actionType} : e)));

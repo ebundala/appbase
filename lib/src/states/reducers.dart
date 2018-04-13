@@ -317,6 +317,7 @@ AppState rootReducer(AppState prevState, dynamic<Action> action) {
       //modify state here
       if (state.currentUser.uid != null) {
         state.auctions[action.data.auctionId].bids[action.data.uid] = (new Bid()
+         ..auctionId=action.data.auctionId
           ..bidValue = action.data.bidValue
           ..uid = action.data.uid
           ..userName = action.data.userName
@@ -324,6 +325,8 @@ AppState rootReducer(AppState prevState, dynamic<Action> action) {
           ..item = (new ItemInfo()
             ..itemId = action.data.item.itemId
             ..featuredImage = action.data.item.featuredImage
+            ..priceUnit=action.data.item.priceUnit
+            ..title=action.data.item.title
             ..seller = (new userInfo()
               ..userName = action.data.item.seller.userName
               ..avator = action.data.item.seller.avator

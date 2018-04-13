@@ -55,6 +55,7 @@ class ShoppingCart extends AppBase{
     }
 
   }
+
   _itemType(type){
     switch(type){
       case "ItemType.digital":
@@ -63,6 +64,7 @@ class ShoppingCart extends AppBase{
         return ItemType.physical;
     }
   }
+
   _sellType(type){
     switch(type){
       case "SellMode.auctionSell":
@@ -71,6 +73,7 @@ class ShoppingCart extends AppBase{
         return SellMode.directSell;
     }
   }
+
   _itemCondition(type){
     switch(type){
       case "ItemCondition.brandNew":
@@ -87,6 +90,7 @@ class ShoppingCart extends AppBase{
         return ItemCondition.unknown;
     }
   }
+
   Map _ItemToMap(Item item){
    var itemMap= {
      "itemId": item.itemId,
@@ -137,7 +141,7 @@ class ShoppingCart extends AppBase{
    }
 
    if(item.auctionInfo!=null){
-     logInfo("auctionInfo");
+
      itemMap["auctionInfo"]={
        "auctionId":item.auctionInfo.auctionId,
        "start":item.auctionInfo.start,
@@ -165,9 +169,10 @@ class ShoppingCart extends AppBase{
 
 
    }
-   logInfo(itemMap);
+
    return itemMap;
   }
+
   Item _itemInfoChanged(itemInfo){
 
 
@@ -264,6 +269,7 @@ class ShoppingCart extends AppBase{
     }
 
   }
+
   Future<Cart> addToCart(CartItemInfo itemInfo) async{
     logInfo('addToCart');
     User aUser=store.state.currentUser;
@@ -319,6 +325,7 @@ class ShoppingCart extends AppBase{
 
     return cart;
   }
+
   Map _cartToMap(CartItemInfo info,cart){
     User aUser=store.state.currentUser;
     Map cartMap={
@@ -373,7 +380,6 @@ class ShoppingCart extends AppBase{
     return cartMap;
   }
 
-
   Future<Cart> editCart(CartItemInfo cartItem) async{
     logInfo('editCart');
     try{
@@ -407,17 +413,26 @@ class ShoppingCart extends AppBase{
       logError(e,ActionsTypes.saveCart,st);
     }
   }
-  void deleteItem(ItemInfo item) {
+  Future<bool> deleteItem(Item item) async{
     logInfo('deleteItem');
     try{
+     var itemRef= _itemsRef.child(item.itemId);
+     await itemRef.set(null);
+     var res=await itemRef.get();
+     if(res==null){
+       store.dispatch(new Action(type: ActionsTypes.deleteItem, data: item));
+       return true;
+     }
+     else{
+       throw new AppError(actionType: ActionsTypes.deleteItem,payload: item,message: "failed to delete item ");
+     }
 
     }catch(e,st){
       logError(e,ActionsTypes.deleteItem,st);
+      return false;
     }
-    store.dispatch(new Action(type: ActionsTypes.deleteItem, data: item));
+
   }
-
-
 
   Future<Null> removeFromCart(CartItemInfo item) async{
     logInfo('removeFromCart');
@@ -440,10 +455,6 @@ class ShoppingCart extends AppBase{
     }
 
   }
-
-
-
-
 
   Future<bool> deleteCart() async{
     logInfo('deleteCart');
@@ -479,7 +490,7 @@ class ShoppingCart extends AppBase{
         ..minimumBid = info.minimumBid);
        item.auctionInfo=info;
 
-
+     //todo make editing item and creating auction atomic transaction
      var edited=await editItem(item);
      logInfo(edited.auctionInfo);
      var auctionMap=_auctionToMap(auction);
@@ -605,44 +616,159 @@ class ShoppingCart extends AppBase{
     return auction;
   }
 
-  void deleteAuction({Auction auction, Item item}) {
+  Future<bool> deleteAuction({Item item}) async{
     logInfo('deleteAuction');
     try{
+      //todo make editing item and deleting auction atomic transaction
+      Auction auction = (new Auction()
+        ..seller = item.auctionInfo.seller
+        ..item = item.auctionInfo.item
+        ..auctionId = item.auctionInfo.auctionId
+        ..start = item.auctionInfo.start
+        ..end = item.auctionInfo.end
+        ..status = item.auctionInfo.status
+        ..highestBid = item.auctionInfo.highestBid
+        ..minimumBid = item.auctionInfo.minimumBid);
+
+      await _auctionsRef.child(auction.auctionId).set(null);
+      var auctionVal=await _auctionsRef.child(auction.auctionId).get();
+      if(auctionVal==null){
+        item.auctionInfo=null;
+
+        var edited=await editItem(item);
+        // logInfo(edited.auctionInfo);
+      if(edited.auctionInfo==null){
+        store.dispatch(new Action(type: ActionsTypes.deleteAuction, data: auction));
+        return true;
+      }
+
+      }
+
+      throw new AppError(actionType: ActionsTypes.deleteAuction,payload: auction,message: "failed to delete auction");
 
     }catch(e,st){
       logError(e,ActionsTypes.deleteAuction,st);
+      return false;
     }
-    store.dispatch(new Action(type: ActionsTypes.createAuction, data: auction));
+
   }
 
-  void placeBid(Bid bid) {
+  Map _bidToMap(Bid bid){
+
+    Map bidMap={
+      "auctionId":bid.auctionId,
+      "bidValue":bid.bidValue,
+      "uid":bid.uid,
+      "userName":bid.userName,
+      "avator":bid.avator,
+      "item":{
+        "itemId":bid.item.itemId,
+        "featuredImage":bid.item.featuredImage,
+        "priceUnit":bid.item.priceUnit,
+        "title":bid.item.title,
+        "seller":{
+          "uid":bid.item.seller.uid,
+          "userName":bid.item.seller.userName,
+          "avator":bid.item.seller.avator
+        }
+      }
+    };
+
+    return bidMap;
+  }
+
+  Bid _bidInfoChanged(info){
+    Bid bidInstance=(new Bid()
+      ..auctionId = info["auctionId"]
+      ..bidValue = info["bidValue"]
+      ..uid = info["uid"]
+      ..userName = info["displayName"]
+      ..avator = info["photoUrl"]
+      ..item = (new ItemInfo()
+        ..itemId = info["item"]["itemId"]
+        ..featuredImage = info["item"]["featuredImage"]
+        ..priceUnit=info["item"]["priceUnit"]
+        ..seller = (new userInfo()
+          ..userName = info["item"]["seller"]["userName"]
+          ..avator = info["item"]["seller"]["avator"]
+          ..uid = info["item"]["seller"]["uid"])));
+    return bidInstance;
+  }
+
+  Future<Bid> placeBid(Bid bid) async{
     logInfo('placeBid');
     try{
 
+      var bidRef=_auctionsRef.child(bid.auctionId).child("bids").child(bid.uid);
+    var bidInfo=  await bidRef.get();
+
+    if(bidInfo!=null) {
+      if (bidInfo["bidValue"] > bid.bidValue) {
+        throw new AppError(actionType: ActionsTypes.placeBid,
+            payload: bid,
+            message: "cant set bid to lower value than ${bidInfo["bidValue"]}");
+      }
+    }
+      var bidMap=_bidToMap(bid);
+     await bidRef.set(bidMap);
+     bidInfo= await bidRef.get();
+
+     if(bidInfo!=null){
+
+       Bid bidInst=_bidInfoChanged(bidInfo);
+
+       store.dispatch(new Action(type: ActionsTypes.placeBid, data: bidInst));
+       return bidInst;
+     }else{
+       throw new AppError(actionType: ActionsTypes.placeBid,payload: bid,message: "failed to place a bid");
+     }
+
     }catch(e,st){
       logError(e,ActionsTypes.placeBid,st);
+      return new Bid();
     }
-    store.dispatch(new Action(type: ActionsTypes.placeBid, data: bid));
+
   }
 
-  void updateBid(Bid bid) {
+  Future<Bid> updateBid(Bid bid) async{
     logInfo('updateBid');
     try{
+      var bidInst=await placeBid(bid);
+      if(bidInst!=null){
+        store.dispatch(new Action(type: ActionsTypes.updateBid, data: bidInst));
+        return bidInst;
+      }
+      else{
+        throw new AppError(actionType: ActionsTypes.updateBid,payload: bid,message: "failed to update bid");
+      }
 
     }catch(e,st){
       logError(e,ActionsTypes.updateBid,st);
+      return new Bid();
     }
-    store.dispatch(new Action(type: ActionsTypes.updateBid, data: bid));
+
   }
 
-  void removeBid(Bid bid) {
+  Future<bool> removeBid(Bid bid) async{
     logInfo('removeBid');
     try{
+      var bidRef=_auctionsRef.child(bid.auctionId).child("bids").child(bid.uid);
+      await bidRef.set(null);
+      var res=await bidRef.get();
+
+      if(res==null){
+        store.dispatch(new Action(type: ActionsTypes.removeBid, data: bid));
+        return true;
+      }
+      else{
+        throw new AppError(actionType: ActionsTypes.removeBid,payload: bid,message: "failed to delete bid");
+      }
 
     }catch(e,st){
       logError(e,ActionsTypes.removeBid,st);
+      return false;
     }
-    store.dispatch(new Action(type: ActionsTypes.removeBid, data: bid));
+
   }
 
   Future<Order> checkout(Cart cart) async{
@@ -660,6 +786,7 @@ class ShoppingCart extends AppBase{
     }
     return new Order();
   }
+
   _orderStatus(status){
     switch(status){
       case "OrderState.waiting":
@@ -676,6 +803,7 @@ class ShoppingCart extends AppBase{
         return OrderState.unknown;
     }
   }
+
   Map _orderToMap(Order info){
     Map orderMap={
       "orderId":info.orderId,
@@ -687,6 +815,7 @@ class ShoppingCart extends AppBase{
     };
     return orderMap;
   }
+
   Order _orderInfoChanged(info){
 
     Order order = (new Order()
@@ -699,6 +828,7 @@ class ShoppingCart extends AppBase{
 
     return order;
   }
+
   Future<Order> confirmOrder(Cart _cart) async{
     logInfo('confirmOrder');
     try {
@@ -786,8 +916,4 @@ class ShoppingCart extends AppBase{
     }
     return new Order();
   }
-
-
-
-
 }

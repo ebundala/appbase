@@ -826,7 +826,7 @@ Future<Null> main() async {
         ..highestBid =  (item.priceUnit * 5)
 
         ..minimumBid = ( item.priceUnit
-          ));
+         ));
 
       await cart.createAuction(info: info, item: item);
       expect(store.state.auctions[item.itemId].auctionId, equals(item.itemId));
@@ -847,7 +847,7 @@ Future<Null> main() async {
       expect(store.state.auctions[item.itemId].minimumBid,
           equals(info.minimumBid));
     });
-   /* test("placeBid", () {
+    test("placeBid", () async{
       var aUser = store.state.currentUser;
       var item = store.state.items["xcvbbnbj89jk"];
       Bid aBid = (new Bid()
@@ -859,11 +859,13 @@ Future<Null> main() async {
         ..item = (new ItemInfo()
           ..itemId = item.itemId
           ..featuredImage = item.featuredImage
+          ..priceUnit=item.priceUnit
+          ..title=item.title
           ..seller = (new userInfo()
             ..userName = item.seller.userName
             ..avator = item.seller.avator
             ..uid = item.seller.uid)));
-      cart.placeBid(aBid);
+    var bidRes= await cart.placeBid(aBid);
 
       expect(store.state.auctions["xcvbbnbj89jk"].bids.length, equals(1));
       expect(store.state.auctions["xcvbbnbj89jk"].bids.containsKey(aUser.uid),
@@ -883,7 +885,7 @@ Future<Null> main() async {
           equals(item.featuredImage));
     });
 
-    test("updateBid", () {
+    test("updateBid", () async{
       var aUser = store.state.currentUser;
       var item = store.state.items["xcvbbnbj89jk"];
       Bid aBid = (new Bid()
@@ -895,17 +897,19 @@ Future<Null> main() async {
         ..item = (new ItemInfo()
           ..itemId = item.itemId
           ..featuredImage = item.featuredImage
+          ..priceUnit=item.priceUnit
+          ..title=item.title
           ..seller = (new userInfo()
             ..userName = item.seller.userName
             ..avator = item.seller.avator
             ..uid = item.seller.uid)));
-      cart.updateBid(aBid);
+      var res=await cart.updateBid(aBid);
 
       expect(store.state.auctions["xcvbbnbj89jk"].bids.length, equals(1));
       expect(store.state.auctions["xcvbbnbj89jk"].bids.containsKey(aUser.uid),
           isTrue);
       expect(store.state.auctions["xcvbbnbj89jk"].bids[aUser.uid].bidValue,
-          equals(aBid.bidValue));
+          equals(res.bidValue));
       expect(store.state.auctions["xcvbbnbj89jk"].bids[aUser.uid].uid,
           equals(aUser.uid));
       expect(store.state.auctions["xcvbbnbj89jk"].bids[aUser.uid].item.itemId,
@@ -918,7 +922,7 @@ Future<Null> main() async {
               .featuredImage,
           equals(item.featuredImage));
     });
-    test("removeBid", () {
+    test("removeBid", () async{
       var aUser = store.state.currentUser;
       var item = store.state.items["xcvbbnbj89jk"];
       Bid aBid = (new Bid()
@@ -930,33 +934,36 @@ Future<Null> main() async {
         ..item = (new ItemInfo()
           ..itemId = item.itemId
           ..featuredImage = item.featuredImage
+          ..title=item.title
+          ..priceUnit=item.priceUnit
           ..seller = (new userInfo()
             ..userName = item.seller.userName
             ..avator = item.seller.avator
             ..uid = item.seller.uid)));
-      cart.removeBid(aBid);
-      expect(store.state.auctions["xcvbbnbj89jk"].bids.length, equals(0));
+     await cart.removeBid(aBid);
+
       expect(store.state.auctions["xcvbbnbj89jk"].bids.containsKey(aUser.uid),
           isFalse);
+      expect(store.state.auctions["xcvbbnbj89jk"].bids.length, equals(0));
     });
 
-    test("deleteAuction", () {
-      //  expect(true,equals(false));
+    test("deleteAuction", () async{
+      Item item = store.state.items["xcvbbnbj89jk"];
+      await cart.deleteAuction(item: item);
+
+      expect(store.state.auctions.containsKey(item.itemId), isFalse);
+      expect(store.state.auctions.length, equals(0));
+
     });
 
-    test("deleteItem", () {
-      ItemInfo itemInfo = (new Item()
-        ..itemId = "xcvbbnbj89jk"
-        ..seller = (new userInfo()
-          ..uid = "12345890"
-          ..userName = "john wink"
-          ..avator = "somepic.jp")
-        ..title = "some product"
-        ..priceUnit = 98989889.00);
-      // cart.deleteItem(itemInfo);
-      // expect(store.state.items[itemInfo],equals(null));
+   test("deleteItem", () async{
+     Item item = store.state.items["xcvbbnbj89jk"];
+      await cart.deleteItem(item);
+
+     expect(store.state.items.containsKey(item.itemId),isFalse);
+     expect(store.state.items.length,equals(0));
     });
-    */
+
   });
 
 /*
